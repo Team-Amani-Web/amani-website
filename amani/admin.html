@@ -1,0 +1,884 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AMANI Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@400;600;700;900&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --navy:  #0D1842; --blue: #2B4FBF; --red: #E83848;
+      --lime:  #C8E632; --white: #FFFFFF; --ink: #1A1A2E;
+      --bg:    #F4F4F0; --card: #FFFFFF; --border: rgba(13,24,66,0.1);
+      --muted: #6B7280; --success: #22c55e; --sidebar: 240px;
+    }
+    html, body { height: 100%; font-family: 'Barlow', sans-serif; background: var(--bg); color: var(--ink); overflow-x: hidden; }
+    a { text-decoration: none; color: inherit; }
+    button { cursor: pointer; }
+    input, textarea, select { font-family: inherit; }
+
+    /* ── LOGIN ─────────────────────────────────────────────── */
+    #login-screen {
+      position: fixed; inset: 0; z-index: 999;
+      background: var(--navy);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .login-box {
+      background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1);
+      padding: 56px 48px; width: 380px; text-align: center;
+    }
+    .login-logo { font-family:'Bebas Neue',sans-serif; font-size:2.8rem; color:var(--white); letter-spacing:2px; margin-bottom:6px; }
+    .login-logo span { color:var(--lime); }
+    .login-sub { font-size:0.78rem; letter-spacing:3px; text-transform:uppercase; color:rgba(255,255,255,0.3); margin-bottom:40px; }
+    .login-field { width:100%; padding:14px 16px; background:rgba(255,255,255,0.06); border:1.5px solid rgba(255,255,255,0.12); color:var(--white); font-size:0.95rem; margin-bottom:12px; outline:none; transition:border-color 0.2s; }
+    .login-field:focus { border-color:var(--lime); }
+    .login-field::placeholder { color:rgba(255,255,255,0.3); }
+    .login-btn { width:100%; padding:14px; background:var(--lime); border:none; font-family:'Barlow Condensed',sans-serif; font-weight:900; font-size:0.9rem; letter-spacing:3px; text-transform:uppercase; color:var(--navy); transition:background 0.2s; margin-top:4px; }
+    .login-btn:hover { background:#d6f53a; }
+    .login-err { color:var(--red); font-size:0.8rem; margin-top:10px; display:none; }
+
+    /* ── LAYOUT ─────────────────────────────────────────────── */
+    #app { display:none; height:100vh; }
+    .app-layout { display:grid; grid-template-columns:var(--sidebar) 1fr; height:100%; }
+
+    /* ── SIDEBAR ─────────────────────────────────────────────── */
+    .sidebar { background:var(--navy); display:flex; flex-direction:column; height:100vh; position:sticky; top:0; overflow-y:auto; }
+    .sidebar-logo { padding:24px 20px; border-bottom:1px solid rgba(255,255,255,0.06); }
+    .sidebar-logo-text { font-family:'Bebas Neue',sans-serif; font-size:1.4rem; color:var(--white); letter-spacing:2px; line-height:1; }
+    .sidebar-logo-text span { color:var(--lime); }
+    .sidebar-logo-sub { font-size:0.6rem; letter-spacing:3px; text-transform:uppercase; color:rgba(255,255,255,0.25); margin-top:2px; }
+    .sidebar-section-label { font-size:0.58rem; letter-spacing:4px; text-transform:uppercase; color:rgba(255,255,255,0.2); padding:20px 20px 8px; }
+    .nav-item { display:flex; align-items:center; gap:10px; padding:11px 20px; font-family:'Barlow Condensed',sans-serif; font-weight:700; font-size:0.82rem; letter-spacing:1.5px; text-transform:uppercase; color:rgba(255,255,255,0.5); cursor:pointer; transition:all 0.15s; border-left:3px solid transparent; }
+    .nav-item:hover { color:var(--white); background:rgba(255,255,255,0.04); }
+    .nav-item.active { color:var(--lime); border-left-color:var(--lime); background:rgba(200,230,50,0.06); }
+    .nav-item-icon { font-size:1rem; width:18px; text-align:center; }
+    .sidebar-footer { margin-top:auto; padding:16px 20px; border-top:1px solid rgba(255,255,255,0.06); }
+    .sidebar-footer-user { font-size:0.78rem; color:rgba(255,255,255,0.4); }
+    .sidebar-footer-logout { font-family:'Barlow Condensed',sans-serif; font-size:0.7rem; letter-spacing:2px; text-transform:uppercase; color:var(--red); cursor:pointer; margin-top:6px; display:inline-block; }
+
+    /* ── MAIN ─────────────────────────────────────────────── */
+    .main { overflow-y:auto; }
+    .topbar { position:sticky; top:0; z-index:10; background:var(--white); border-bottom:1px solid var(--border); padding:0 32px; height:56px; display:flex; align-items:center; justify-content:space-between; }
+    .topbar-title { font-family:'Barlow Condensed',sans-serif; font-weight:900; font-size:1.1rem; text-transform:uppercase; letter-spacing:1px; color:var(--navy); }
+    .topbar-actions { display:flex; gap:10px; }
+    .page { display:none; padding:32px; }
+    .page.active { display:block; }
+
+    /* ── CARDS & UTILS ───────────────────────────────────────── */
+    .card { background:var(--card); border:1px solid var(--border); padding:24px; }
+    .stat-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin-bottom:28px; }
+    .stat-card { background:var(--card); border:1px solid var(--border); padding:24px 20px; position:relative; overflow:hidden; }
+    .stat-num { font-family:'Bebas Neue',sans-serif; font-size:2.8rem; line-height:1; color:var(--navy); }
+    .stat-label { font-family:'Barlow Condensed',sans-serif; font-weight:700; font-size:0.68rem; letter-spacing:3px; text-transform:uppercase; color:var(--muted); margin-top:4px; }
+    .stat-change { font-size:0.75rem; margin-top:8px; }
+    .stat-change.up { color:var(--success); }
+    .stat-change.down { color:var(--red); }
+    .stat-accent { position:absolute; top:0; left:0; width:4px; height:100%; }
+
+    .section-title { font-family:'Barlow Condensed',sans-serif; font-weight:900; font-size:1.2rem; text-transform:uppercase; letter-spacing:1px; color:var(--navy); margin-bottom:16px; display:flex; justify-content:space-between; align-items:center; }
+
+    /* Buttons */
+    .btn { display:inline-flex; align-items:center; gap:8px; font-family:'Barlow Condensed',sans-serif; font-weight:900; font-size:0.78rem; letter-spacing:2px; text-transform:uppercase; padding:9px 18px; border:none; transition:all 0.18s; }
+    .btn-primary { background:var(--navy); color:var(--white); }
+    .btn-primary:hover { background:var(--blue); }
+    .btn-lime { background:var(--lime); color:var(--navy); }
+    .btn-lime:hover { background:#d6f53a; }
+    .btn-red { background:var(--red); color:var(--white); }
+    .btn-red:hover { opacity:0.85; }
+    .btn-ghost { background:transparent; color:var(--navy); border:1.5px solid var(--border); }
+    .btn-ghost:hover { border-color:var(--navy); }
+    .btn-sm { padding:6px 12px; font-size:0.68rem; }
+
+    /* Table */
+    .data-table { width:100%; border-collapse:collapse; }
+    .data-table th { font-family:'Barlow Condensed',sans-serif; font-weight:700; font-size:0.68rem; letter-spacing:3px; text-transform:uppercase; color:var(--muted); padding:10px 16px; text-align:left; border-bottom:2px solid var(--border); background:var(--bg); }
+    .data-table td { padding:14px 16px; border-bottom:1px solid var(--border); font-size:0.88rem; vertical-align:middle; }
+    .data-table tr:hover td { background:rgba(43,79,191,0.03); }
+    .data-table tr:last-child td { border-bottom:none; }
+
+    /* Badge */
+    .badge { display:inline-block; padding:3px 10px; font-family:'Barlow Condensed',sans-serif; font-weight:700; font-size:0.62rem; letter-spacing:2px; text-transform:uppercase; }
+    .badge-published { background:rgba(34,197,94,0.1); color:var(--success); }
+    .badge-draft     { background:rgba(107,114,128,0.1); color:var(--muted); }
+    .badge-scheduled { background:rgba(43,79,191,0.1); color:var(--blue); }
+    .badge-active    { background:rgba(34,197,94,0.1); color:var(--success); }
+    .badge-free      { background:rgba(43,79,191,0.1); color:var(--blue); }
+    .badge-paid      { background:rgba(200,230,50,0.2); color:#6a7c1e; }
+
+    /* Form fields */
+    .form-group { margin-bottom:20px; }
+    .form-label { font-family:'Barlow Condensed',sans-serif; font-weight:700; font-size:0.72rem; letter-spacing:2px; text-transform:uppercase; color:var(--muted); margin-bottom:8px; display:block; }
+    .form-input { width:100%; padding:10px 14px; border:1.5px solid var(--border); background:var(--white); font-family:inherit; font-size:0.92rem; outline:none; transition:border-color 0.2s; }
+    .form-input:focus { border-color:var(--navy); }
+    .form-select { width:100%; padding:10px 14px; border:1.5px solid var(--border); background:var(--white); font-family:inherit; font-size:0.92rem; outline:none; }
+    .form-textarea { width:100%; padding:10px 14px; border:1.5px solid var(--border); background:var(--white); font-family:inherit; font-size:0.92rem; outline:none; resize:vertical; min-height:120px; transition:border-color 0.2s; }
+    .form-textarea:focus { border-color:var(--navy); }
+
+    /* Editor */
+    .post-editor { border:1.5px solid var(--border); background:var(--white); }
+    .editor-toolbar { display:flex; gap:4px; padding:10px 12px; border-bottom:1px solid var(--border); background:var(--bg); flex-wrap:wrap; }
+    .editor-btn { padding:5px 10px; background:transparent; border:1px solid transparent; font-family:'Barlow Condensed',sans-serif; font-size:0.78rem; font-weight:700; color:var(--navy); transition:all 0.15s; }
+    .editor-btn:hover { background:var(--white); border-color:var(--border); }
+    .editor-content { min-height:320px; padding:20px; outline:none; font-size:0.97rem; line-height:1.75; }
+    .editor-content:empty::before { content:attr(data-placeholder); color:var(--muted); pointer-events:none; }
+    .editor-content h2 { font-family:'Barlow Condensed',sans-serif; font-size:1.5rem; font-weight:900; color:var(--navy); margin:20px 0 8px; }
+    .editor-content p { margin-bottom:12px; }
+    .editor-content strong { font-weight:600; }
+    .editor-content em { font-style:italic; }
+
+    /* Two-col layout */
+    .two-col { display:grid; grid-template-columns:1fr 300px; gap:24px; align-items:start; }
+
+    /* Activity feed */
+    .activity-item { display:flex; gap:12px; padding:12px 0; border-bottom:1px solid var(--border); align-items:flex-start; }
+    .activity-item:last-child { border-bottom:none; }
+    .activity-dot { width:8px; height:8px; border-radius:50%; margin-top:6px; flex-shrink:0; }
+    .activity-text { font-size:0.85rem; line-height:1.5; }
+    .activity-time { font-size:0.72rem; color:var(--muted); margin-top:2px; }
+
+    /* Newsletter composer */
+    .nl-preview { background:var(--navy); color:var(--white); padding:32px; min-height:300px; }
+    .nl-preview-header { border-bottom:3px solid var(--lime); padding-bottom:16px; margin-bottom:20px; }
+    .nl-preview-from { font-size:0.72rem; letter-spacing:3px; text-transform:uppercase; color:rgba(255,255,255,0.35); }
+    .nl-preview-subject { font-family:'Bebas Neue',sans-serif; font-size:1.8rem; color:var(--white); margin-top:6px; }
+    .nl-preview-body { font-size:0.88rem; line-height:1.75; color:rgba(255,255,255,0.7); }
+
+    /* Subscriber chart bar */
+    .chart-bar-wrap { display:flex; flex-direction:column; gap:6px; }
+    .chart-row { display:flex; align-items:center; gap:12px; font-size:0.8rem; }
+    .chart-label { width:60px; color:var(--muted); text-align:right; flex-shrink:0; font-size:0.72rem; }
+    .chart-track { flex:1; height:20px; background:var(--bg); position:relative; }
+    .chart-fill { height:100%; background:var(--navy); transition:width 0.5s ease; }
+    .chart-val { width:36px; color:var(--navy); font-weight:600; font-size:0.78rem; flex-shrink:0; }
+
+    /* Toast */
+    #toast { position:fixed; bottom:24px; right:24px; z-index:1000; background:var(--navy); color:var(--white); padding:14px 20px; font-family:'Barlow Condensed',sans-serif; font-weight:700; font-size:0.82rem; letter-spacing:1px; border-left:4px solid var(--lime); transform:translateY(80px); opacity:0; transition:all 0.3s; pointer-events:none; }
+    #toast.show { transform:translateY(0); opacity:1; }
+
+    /* Modal */
+    .modal-bg { position:fixed; inset:0; background:rgba(13,24,66,0.5); z-index:500; display:none; align-items:center; justify-content:center; }
+    .modal-bg.open { display:flex; }
+    .modal { background:var(--white); width:560px; max-width:90vw; max-height:85vh; overflow-y:auto; }
+    .modal-header { padding:20px 24px; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; }
+    .modal-title { font-family:'Barlow Condensed',sans-serif; font-weight:900; font-size:1rem; text-transform:uppercase; letter-spacing:1px; color:var(--navy); }
+    .modal-close { background:none; border:none; font-size:1.2rem; color:var(--muted); cursor:pointer; }
+    .modal-body { padding:24px; }
+    .modal-footer { padding:16px 24px; border-top:1px solid var(--border); display:flex; justify-content:flex-end; gap:10px; }
+
+    @media(max-width:900px){
+      .app-layout { grid-template-columns:1fr; }
+      .sidebar { display:none; }
+      .stat-grid { grid-template-columns:1fr 1fr; }
+      .two-col { grid-template-columns:1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── LOGIN ─────────────────────────────────────────────────── -->
+<div id="login-screen">
+  <div class="login-box">
+    <div class="login-logo">TEAM <span>AMANI</span></div>
+    <div class="login-sub">Admin Dashboard</div>
+    <input class="login-field" type="email" id="login-email" placeholder="Email address" value="admin@teamamani.com" />
+    <input class="login-field" type="password" id="login-pw" placeholder="Password" />
+    <button class="login-btn" onclick="doLogin()">Sign In →</button>
+    <div class="login-err" id="login-err">Incorrect credentials. Try: admin / amani2026</div>
+    <p style="font-size:0.68rem;color:rgba(255,255,255,0.2);margin-top:20px;">Demo: any email · password: <strong style="color:rgba(255,255,255,0.4);">amani2026</strong></p>
+  </div>
+</div>
+
+<!-- ── APP ─────────────────────────────────────────────────────── -->
+<div id="app">
+  <div class="app-layout">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+      <div class="sidebar-logo">
+        <div class="sidebar-logo-text">TEAM <span>AMANI</span></div>
+        <div class="sidebar-logo-sub">Admin Dashboard</div>
+      </div>
+
+      <div class="sidebar-section-label">Overview</div>
+      <div class="nav-item active" data-page="dashboard" onclick="navigate(this)">
+        <span class="nav-item-icon">◼</span> Dashboard
+      </div>
+
+      <div class="sidebar-section-label">Content</div>
+      <div class="nav-item" data-page="posts" onclick="navigate(this)">
+        <span class="nav-item-icon">✏</span> Blog Posts
+      </div>
+      <div class="nav-item" data-page="newsletter" onclick="navigate(this)">
+        <span class="nav-item-icon">✉</span> Newsletter
+      </div>
+      <div class="nav-item" data-page="media" onclick="navigate(this)">
+        <span class="nav-item-icon">◎</span> Media Library
+      </div>
+
+      <div class="sidebar-section-label">Community</div>
+      <div class="nav-item" data-page="subscribers" onclick="navigate(this)">
+        <span class="nav-item-icon">◉</span> Subscribers
+      </div>
+      <div class="nav-item" data-page="members" onclick="navigate(this)">
+        <span class="nav-item-icon">◈</span> Members
+      </div>
+
+      <div class="sidebar-section-label">Team</div>
+      <div class="nav-item" data-page="riders" onclick="navigate(this)">
+        <span class="nav-item-icon">◷</span> Riders
+      </div>
+      <div class="nav-item" data-page="races" onclick="navigate(this)">
+        <span class="nav-item-icon">◬</span> Races
+      </div>
+
+      <div class="sidebar-section-label">System</div>
+      <div class="nav-item" data-page="settings" onclick="navigate(this)">
+        <span class="nav-item-icon">⚙</span> Settings
+      </div>
+
+      <div class="sidebar-footer">
+        <div class="sidebar-footer-user" id="admin-name">Signed in as Admin</div>
+        <div class="sidebar-footer-logout" onclick="doLogout()">Sign Out</div>
+      </div>
+    </aside>
+
+    <!-- MAIN -->
+    <main class="main">
+
+      <!-- TOPBAR -->
+      <div class="topbar">
+        <div class="topbar-title" id="topbar-title">Dashboard</div>
+        <div class="topbar-actions" id="topbar-actions">
+          <button class="btn btn-primary" onclick="navigate(document.querySelector('[data-page=posts]')); setTimeout(newPost,100)">+ New Post</button>
+          <a href="index.html" target="_blank" class="btn btn-ghost">View Site ↗</a>
+        </div>
+      </div>
+
+      <!-- ── DASHBOARD ──────────────────────────────────────── -->
+      <div class="page active" id="page-dashboard">
+        <div class="stat-grid">
+          <div class="stat-card"><div class="stat-accent" style="background:var(--lime)"></div><div class="stat-num" id="stat-subscribers">2,431</div><div class="stat-label">Total Subscribers</div><div class="stat-change up">↑ 48 this week</div></div>
+          <div class="stat-card"><div class="stat-accent" style="background:var(--blue)"></div><div class="stat-num" id="stat-posts">14</div><div class="stat-label">Published Posts</div><div class="stat-change up">↑ 2 this month</div></div>
+          <div class="stat-card"><div class="stat-accent" style="background:var(--red)"></div><div class="stat-num">68%</div><div class="stat-label">Email Open Rate</div><div class="stat-change up">↑ 4% vs avg</div></div>
+          <div class="stat-card"><div class="stat-accent" style="background:var(--navy)"></div><div class="stat-num">5</div><div class="stat-label">Nations Represented</div><div class="stat-change">Kenya · Uganda · Rwanda +2</div></div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:24px;">
+          <!-- Recent posts -->
+          <div class="card">
+            <div class="section-title">Recent Posts <button class="btn btn-ghost btn-sm" onclick="navigate(document.querySelector('[data-page=posts]'))">All Posts</button></div>
+            <div id="dashboard-posts-list"></div>
+          </div>
+          <!-- Activity -->
+          <div class="card">
+            <div class="section-title">Recent Activity</div>
+            <div id="activity-feed">
+              <div class="activity-item"><div class="activity-dot" style="background:var(--lime)"></div><div><div class="activity-text">New subscriber — <strong>james.martin@gmail.com</strong></div><div class="activity-time">2 minutes ago</div></div></div>
+              <div class="activity-item"><div class="activity-dot" style="background:var(--blue)"></div><div><div class="activity-text">Post published — <em>Safari Gravel Race recap</em></div><div class="activity-time">1 hour ago</div></div></div>
+              <div class="activity-item"><div class="activity-dot" style="background:var(--lime)"></div><div><div class="activity-text">Newsletter sent — 2,381 recipients · 68% open rate</div><div class="activity-time">3 hours ago</div></div></div>
+              <div class="activity-item"><div class="activity-dot" style="background:var(--lime)"></div><div><div class="activity-text">New subscriber — <strong>anna.schäfer@web.de</strong></div><div class="activity-time">5 hours ago</div></div></div>
+              <div class="activity-item"><div class="activity-dot" style="background:var(--red)"></div><div><div class="activity-text">Rider profile updated — <em>Lawrence Lorot</em></div><div class="activity-time">Yesterday</div></div></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Subscriber growth chart -->
+        <div class="card">
+          <div class="section-title">Subscriber Growth — Last 8 Months</div>
+          <div class="chart-bar-wrap" id="sub-chart" style="margin-top:12px;"></div>
+        </div>
+      </div>
+
+      <!-- ── BLOG POSTS ──────────────────────────────────────── -->
+      <div class="page" id="page-posts">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;">
+          <div style="display:flex;gap:10px;">
+            <button class="btn btn-ghost btn-sm" onclick="filterPosts('all')" id="filter-all" style="border-color:var(--navy)">All</button>
+            <button class="btn btn-ghost btn-sm" onclick="filterPosts('published')" id="filter-published">Published</button>
+            <button class="btn btn-ghost btn-sm" onclick="filterPosts('draft')" id="filter-draft">Drafts</button>
+          </div>
+          <button class="btn btn-lime" onclick="newPost()">+ New Post</button>
+        </div>
+        <div class="card" style="padding:0;overflow:hidden;">
+          <table class="data-table" id="posts-table">
+            <thead><tr><th>Title</th><th>Category</th><th>Status</th><th>Date</th><th>Actions</th></tr></thead>
+            <tbody id="posts-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ── POST EDITOR ─────────────────────────────────────── -->
+      <div class="page" id="page-editor">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;">
+          <button class="btn btn-ghost btn-sm" onclick="navigate(document.querySelector('[data-page=posts]'))">← Back to Posts</button>
+          <div style="display:flex;gap:10px;">
+            <button class="btn btn-ghost" onclick="savePost('draft')">Save Draft</button>
+            <button class="btn btn-lime" onclick="savePost('published')">Publish →</button>
+          </div>
+        </div>
+        <div class="two-col">
+          <div>
+            <div class="form-group">
+              <input class="form-input" id="post-title" placeholder="Post title…" style="font-size:1.3rem;font-family:'Barlow Condensed',sans-serif;font-weight:900;padding:14px;" />
+            </div>
+            <div class="post-editor">
+              <div class="editor-toolbar">
+                <button class="editor-btn" onclick="fmt('bold')"><strong>B</strong></button>
+                <button class="editor-btn" onclick="fmt('italic')"><em>I</em></button>
+                <button class="editor-btn" onclick="fmt('formatBlock','<h2>')">H2</button>
+                <button class="editor-btn" onclick="fmt('insertUnorderedList')">• List</button>
+                <button class="editor-btn" onclick="fmt('insertOrderedList')">1. List</button>
+                <button class="editor-btn" onclick="fmt('createLink',prompt('URL:'))">Link</button>
+                <button class="editor-btn" onclick="fmt('removeFormat')">Clear</button>
+              </div>
+              <div class="editor-content" id="post-body" contenteditable="true" data-placeholder="Start writing your story here…"></div>
+            </div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:16px;">
+            <div class="card">
+              <div class="form-group">
+                <label class="form-label">Category</label>
+                <select class="form-select" id="post-category">
+                  <option>Race Report</option>
+                  <option>Team News</option>
+                  <option>Rider Profile</option>
+                  <option>AMANI House</option>
+                  <option>Spoke Academy</option>
+                  <option>Gravel Racing</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Status</label>
+                <select class="form-select" id="post-status">
+                  <option value="draft">Draft</option>
+                  <option value="published">Published</option>
+                  <option value="scheduled">Scheduled</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Excerpt (for feed preview)</label>
+                <textarea class="form-textarea" id="post-excerpt" rows="3" style="min-height:80px;" placeholder="One-line summary shown in the article feed…"></textarea>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Author</label>
+                <input class="form-input" id="post-author" value="Team AMANI" />
+              </div>
+              <div class="form-group" style="margin:0;">
+                <label class="form-label">Read time (mins)</label>
+                <input class="form-input" id="post-readtime" type="number" value="5" min="1" max="60" />
+              </div>
+            </div>
+            <div class="card">
+              <div class="form-label" style="margin-bottom:10px;">Send as Newsletter?</div>
+              <label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-size:0.9rem;">
+                <input type="checkbox" id="post-send-email" style="width:18px;height:18px;" />
+                Email to all subscribers on publish
+              </label>
+            </div>
+          </div>
+        </div>
+        <input type="hidden" id="editing-post-id" value="" />
+      </div>
+
+      <!-- ── NEWSLETTER ──────────────────────────────────────── -->
+      <div class="page" id="page-newsletter">
+        <div class="two-col">
+          <div>
+            <div class="card" style="margin-bottom:24px;">
+              <div class="section-title" style="margin-bottom:20px;">Compose Newsletter</div>
+              <div class="form-group">
+                <label class="form-label">Subject Line</label>
+                <input class="form-input" id="nl-subject" placeholder="e.g. Race recap: Safari Gravel Race 2026" />
+              </div>
+              <div class="form-group">
+                <label class="form-label">Preview Text</label>
+                <input class="form-input" id="nl-preview-text" placeholder="Short teaser shown after subject in inbox…" />
+              </div>
+              <div class="form-group">
+                <label class="form-label">Body</label>
+                <textarea class="form-textarea" id="nl-body" rows="10" placeholder="Write your newsletter here. Plain text or simple HTML supported.&#10;&#10;Hi [first_name],&#10;&#10;[Your message here]&#10;&#10;Until next time,&#10;Team AMANI"></textarea>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Send to</label>
+                <select class="form-select" id="nl-audience">
+                  <option>All subscribers (2,431)</option>
+                  <option>Free members only (2,204)</option>
+                  <option>Paid members only (227)</option>
+                </select>
+              </div>
+              <div style="display:flex;gap:10px;margin-top:4px;">
+                <button class="btn btn-ghost" onclick="previewNewsletter()">Preview →</button>
+                <button class="btn btn-lime" onclick="sendNewsletter()">Send Newsletter ✉</button>
+              </div>
+            </div>
+            <!-- Sent history -->
+            <div class="card" style="padding:0;overflow:hidden;">
+              <div style="padding:16px 20px;border-bottom:1px solid var(--border);">
+                <div class="section-title" style="margin:0;">Sent Campaigns</div>
+              </div>
+              <table class="data-table">
+                <thead><tr><th>Subject</th><th>Sent</th><th>Open Rate</th><th>Clicks</th></tr></thead>
+                <tbody>
+                  <tr><td>Safari Gravel Race Recap 🏁</td><td>3h ago · 2,381</td><td><strong style="color:var(--success)">68%</strong></td><td>312</td></tr>
+                  <tr><td>Meet the 2026 Roster</td><td>Apr 12 · 2,290</td><td><strong style="color:var(--success)">72%</strong></td><td>445</td></tr>
+                  <tr><td>Migration Gravel Race — Stage 4</td><td>Mar 28 · 2,180</td><td><strong>61%</strong></td><td>289</td></tr>
+                  <tr><td>AMANI House Feature</td><td>Mar 14 · 2,050</td><td><strong>58%</strong></td><td>201</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <!-- Live preview -->
+          <div>
+            <div class="form-label" style="margin-bottom:10px;">Live Preview</div>
+            <div class="nl-preview">
+              <div class="nl-preview-header">
+                <div class="nl-preview-from">From: Team AMANI &lt;hello@teamamani.com&gt;</div>
+                <div class="nl-preview-subject" id="nl-preview-subject">Your newsletter subject</div>
+              </div>
+              <div class="nl-preview-body" id="nl-preview-body" style="white-space:pre-wrap;">Start writing to see a preview here…</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── SUBSCRIBERS ─────────────────────────────────────── -->
+      <div class="page" id="page-subscribers">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+          <div style="display:flex;gap:10px;align-items:center;">
+            <input class="form-input" style="width:220px;" placeholder="Search by name or email…" oninput="searchSubs(this.value)" />
+          </div>
+          <div style="display:flex;gap:10px;">
+            <button class="btn btn-ghost" onclick="exportSubs()">Export CSV</button>
+            <button class="btn btn-lime" onclick="openAddSub()">+ Add Subscriber</button>
+          </div>
+        </div>
+        <div class="card" style="padding:0;overflow:hidden;">
+          <table class="data-table">
+            <thead><tr><th><input type="checkbox" onclick="toggleAll(this)" /></th><th>Email</th><th>Name</th><th>Status</th><th>Joined</th><th>Actions</th></tr></thead>
+            <tbody id="subs-tbody"></tbody>
+          </table>
+        </div>
+        <div style="padding:16px 0;font-size:0.8rem;color:var(--muted);">Showing <span id="sub-count">0</span> subscribers · <a href="#" style="color:var(--blue);" onclick="loadMoreSubs()">Load more</a></div>
+      </div>
+
+      <!-- ── MEMBERS ─────────────────────────────────────────── -->
+      <div class="page" id="page-members">
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:24px;">
+          <div class="stat-card"><div class="stat-accent" style="background:var(--blue)"></div><div class="stat-num">2,204</div><div class="stat-label">Free Members</div></div>
+          <div class="stat-card"><div class="stat-accent" style="background:var(--lime)"></div><div class="stat-num">227</div><div class="stat-label">Paid Members</div></div>
+          <div class="stat-card"><div class="stat-accent" style="background:var(--red)"></div><div class="stat-num">€1,135</div><div class="stat-label">MRR (Monthly Revenue)</div></div>
+        </div>
+        <div class="card">
+          <div class="section-title" style="margin-bottom:16px;">Membership Tiers</div>
+          <table class="data-table">
+            <thead><tr><th>Tier</th><th>Price</th><th>Members</th><th>Revenue</th><th>Benefits</th></tr></thead>
+            <tbody>
+              <tr><td><strong>Free</strong></td><td>€0/mo</td><td>2,204</td><td>—</td><td>Newsletter · Blog access</td></tr>
+              <tr><td><strong>AMANI Supporter</strong></td><td>€5/mo</td><td>158</td><td>€790</td><td>Free + exclusive race content</td></tr>
+              <tr><td><strong>AMANI Insider</strong></td><td>€15/mo</td><td>69</td><td>€1,035</td><td>Supporter + Q&amp;A with riders · Early access</td></tr>
+            </tbody>
+          </table>
+          <div style="margin-top:20px;padding-top:20px;border-top:1px solid var(--border);">
+            <button class="btn btn-primary" onclick="showToast('Membership settings — connect Ghost to manage tiers')">Manage Tiers</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── MEDIA ─────────────────────────────────────────────── -->
+      <div class="page" id="page-media">
+        <div style="display:flex;justify-content:space-between;margin-bottom:20px;">
+          <span style="font-size:0.85rem;color:var(--muted);">12 files · 48.2 MB used</span>
+          <button class="btn btn-lime" onclick="showToast('File upload — available once Ghost is connected')">Upload Files</button>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;" id="media-grid">
+          <!-- Placeholder tiles -->
+        </div>
+        <div class="card" style="margin-top:24px;text-align:center;padding:48px;">
+          <div style="font-size:2rem;margin-bottom:12px;">📁</div>
+          <div style="font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:1rem;text-transform:uppercase;color:var(--navy);margin-bottom:8px;">Media Library</div>
+          <p style="font-size:0.88rem;color:var(--muted);max-width:360px;margin:0 auto 20px;">Upload photos, race images, and rider portraits here. They'll be available to use in posts and pages. Connect Ghost on Railway to enable cloud storage.</p>
+          <button class="btn btn-primary" onclick="showToast('Connect Ghost on Railway to enable media uploads')">Connect Ghost →</button>
+        </div>
+      </div>
+
+      <!-- ── RIDERS ─────────────────────────────────────────────── -->
+      <div class="page" id="page-riders">
+        <div style="display:flex;justify-content:flex-end;margin-bottom:20px;">
+          <button class="btn btn-lime" onclick="openAddRider()">+ Add Rider</button>
+        </div>
+        <div class="card" style="padding:0;overflow:hidden;">
+          <table class="data-table" id="riders-table">
+            <thead><tr><th>Name</th><th>Nation</th><th>Squad</th><th>Role</th><th>Actions</th></tr></thead>
+            <tbody id="riders-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ── RACES ──────────────────────────────────────────────── -->
+      <div class="page" id="page-races">
+        <div style="display:flex;justify-content:flex-end;margin-bottom:20px;">
+          <button class="btn btn-lime" onclick="showToast('Race management — add new race events')">+ Add Race</button>
+        </div>
+        <div class="card" style="padding:0;overflow:hidden;margin-bottom:20px;">
+          <table class="data-table">
+            <thead><tr><th>Race</th><th>Date</th><th>Location</th><th>Type</th><th>Status</th></tr></thead>
+            <tbody>
+              <tr><td><strong>Migration Gravel Race 2026</strong></td><td>May 14–18</td><td>Iten → Mara, Kenya</td><td><span class="badge" style="background:rgba(200,230,50,0.2);color:#6a7c1e;">Stage Race</span></td><td><span class="badge badge-published">Confirmed</span></td></tr>
+              <tr><td><strong>Safari Gravel Series</strong></td><td>Mar 8</td><td>Nairobi, Kenya</td><td><span class="badge" style="background:rgba(232,56,72,0.1);color:var(--red);">UCI 1-Day</span></td><td><span class="badge badge-published">Completed</span></td></tr>
+              <tr><td><strong>European Road Campaign</strong></td><td>Jul–Sep</td><td>TBC · Europe</td><td><span class="badge" style="background:rgba(43,79,191,0.1);color:var(--blue);">Road</span></td><td><span class="badge badge-scheduled">Scheduled</span></td></tr>
+              <tr><td><strong>End of Season Gravel</strong></td><td>Nov</td><td>TBC</td><td><span class="badge" style="background:rgba(200,230,50,0.2);color:#6a7c1e;">Gravel</span></td><td><span class="badge badge-draft">Provisional</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ── SETTINGS ───────────────────────────────────────────── -->
+      <div class="page" id="page-settings">
+        <div class="two-col">
+          <div style="display:flex;flex-direction:column;gap:20px;">
+            <div class="card">
+              <div class="section-title">Site Settings</div>
+              <div class="form-group"><label class="form-label">Site Name</label><input class="form-input" value="Team AMANI" /></div>
+              <div class="form-group"><label class="form-label">Site URL</label><input class="form-input" value="https://teamamani.com" /></div>
+              <div class="form-group"><label class="form-label">Contact Email</label><input class="form-input" value="hello@teamamani.com" /></div>
+              <div class="form-group" style="margin:0;"><label class="form-label">Tagline</label><input class="form-input" value="East Africa's Elite Cycling Force" /></div>
+            </div>
+            <div class="card">
+              <div class="section-title">Newsletter Settings</div>
+              <div class="form-group"><label class="form-label">Sender Name</label><input class="form-input" value="Team AMANI" /></div>
+              <div class="form-group"><label class="form-label">Reply-to Email</label><input class="form-input" value="hello@teamamani.com" /></div>
+              <div class="form-group" style="margin:0;"><label class="form-label">Email Provider</label><select class="form-select"><option>Resend (connected)</option><option>Mailgun</option><option>SMTP</option></select></div>
+            </div>
+            <div class="card">
+              <div class="section-title">Admin Account</div>
+              <div class="form-group"><label class="form-label">Name</label><input class="form-input" id="settings-name" value="Admin User" /></div>
+              <div class="form-group"><label class="form-label">Email</label><input class="form-input" value="admin@teamamani.com" /></div>
+              <div class="form-group" style="margin:0;"><label class="form-label">New Password</label><input class="form-input" type="password" placeholder="Leave blank to keep current" /></div>
+            </div>
+            <button class="btn btn-lime" onclick="saveSettings()">Save Settings</button>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:20px;">
+            <div class="card">
+              <div class="section-title">Backend Status</div>
+              <div style="display:flex;flex-direction:column;gap:12px;font-size:0.85rem;">
+                <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border);"><span>Ghost CMS</span><span style="color:var(--red);font-weight:600;">⊗ Not connected</span></div>
+                <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border);"><span>Railway Hosting</span><span style="color:var(--red);font-weight:600;">⊗ Not deployed</span></div>
+                <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border);"><span>Resend Email</span><span style="color:var(--red);font-weight:600;">⊗ No API key</span></div>
+                <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;"><span>Admin Dashboard</span><span style="color:var(--success);font-weight:600;">✓ Running (local)</span></div>
+              </div>
+              <div style="margin-top:20px;padding:16px;background:rgba(43,79,191,0.06);border-left:3px solid var(--blue);">
+                <div style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:0.78rem;text-transform:uppercase;letter-spacing:1px;color:var(--blue);margin-bottom:6px;">Next Step: Deploy Ghost on Railway</div>
+                <p style="font-size:0.8rem;color:var(--muted);line-height:1.6;">Sign up at railway.app → New Project → Ghost template → Deploy. Takes ~5 minutes. Once live, paste your Ghost URL and Admin API key below to connect everything.</p>
+              </div>
+            </div>
+            <div class="card">
+              <div class="section-title">Connect Ghost</div>
+              <div class="form-group"><label class="form-label">Ghost URL</label><input class="form-input" placeholder="https://your-app.railway.app" /></div>
+              <div class="form-group" style="margin:0;"><label class="form-label">Admin API Key</label><input class="form-input" placeholder="Paste from Ghost → Settings → Integrations" /></div>
+              <button class="btn btn-primary" style="margin-top:16px;" onclick="showToast('Deploy Ghost on Railway first, then paste your URL here')">Test Connection</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<!-- ── ADD SUBSCRIBER MODAL ────────────────────────────────────── -->
+<div class="modal-bg" id="modal-add-sub">
+  <div class="modal">
+    <div class="modal-header"><div class="modal-title">Add Subscriber</div><button class="modal-close" onclick="closeModal('modal-add-sub')">✕</button></div>
+    <div class="modal-body">
+      <div class="form-group"><label class="form-label">Email</label><input class="form-input" id="new-sub-email" placeholder="subscriber@example.com" /></div>
+      <div class="form-group"><label class="form-label">Name (optional)</label><input class="form-input" id="new-sub-name" placeholder="First name" /></div>
+      <div class="form-group" style="margin:0;"><label class="form-label">Status</label><select class="form-select" id="new-sub-status"><option value="free">Free Member</option><option value="paid">Paid Member</option></select></div>
+    </div>
+    <div class="modal-footer"><button class="btn btn-ghost" onclick="closeModal('modal-add-sub')">Cancel</button><button class="btn btn-lime" onclick="addSubscriber()">Add →</button></div>
+  </div>
+</div>
+
+<!-- ── ADD RIDER MODAL ─────────────────────────────────────────── -->
+<div class="modal-bg" id="modal-add-rider">
+  <div class="modal">
+    <div class="modal-header"><div class="modal-title">Add Rider</div><button class="modal-close" onclick="closeModal('modal-add-rider')">✕</button></div>
+    <div class="modal-body">
+      <div class="form-group"><label class="form-label">Full Name</label><input class="form-input" id="new-rider-name" placeholder="e.g. Amos Kirui" /></div>
+      <div class="form-group"><label class="form-label">Nation</label><input class="form-input" id="new-rider-nation" placeholder="e.g. 🇰🇪 Kenya" /></div>
+      <div class="form-group"><label class="form-label">Role / Specialty</label><input class="form-input" id="new-rider-role" placeholder="e.g. GC Leader, Sprinter, Climber" /></div>
+      <div class="form-group" style="margin:0;"><label class="form-label">Squad</label><select class="form-select" id="new-rider-squad"><option>Men's Elite</option><option>Women's Elite</option><option>Black Mamba Development</option></select></div>
+    </div>
+    <div class="modal-footer"><button class="btn btn-ghost" onclick="closeModal('modal-add-rider')">Cancel</button><button class="btn btn-lime" onclick="addRider()">Add Rider →</button></div>
+  </div>
+</div>
+
+<!-- ── TOAST ───────────────────────────────────────────────────── -->
+<div id="toast"></div>
+
+<script>
+/* ── DATA (localStorage-backed) ────────────────────────────── */
+function load(key, fallback) {
+  try { const d = localStorage.getItem('amani_'+key); return d ? JSON.parse(d) : fallback; } catch(e) { return fallback; }
+}
+function save(key, data) { try { localStorage.setItem('amani_'+key, JSON.stringify(data)); } catch(e) {} }
+
+const defaultPosts = [
+  { id:1, title:'Migration Gravel Race 2026 — Four Days in the Rift Valley', category:'Race Report', status:'published', date:'May 14, 2026', author:'Team AMANI', readtime:8, excerpt:'Four stages, one thousand metres of climbing, and East Africa\'s most electric race atmosphere.', body:'<p>The 2026 Migration Gravel Race will live long in the memory...</p>' },
+  { id:2, title:'Introducing the 2026 Roster — New Faces, Same Mission', category:'Team News', status:'published', date:'Apr 12, 2026', author:'Team AMANI', readtime:5, excerpt:'Meet the riders who will carry the AMANI colours this season.', body:'' },
+  { id:3, title:'Life at Altitude — Inside AMANI House, Iten', category:'AMANI House', status:'published', date:'Mar 20, 2026', author:'Team AMANI', readtime:6, excerpt:'A day in the life at our high-performance training centre.', body:'' },
+  { id:4, title:'From Runner to Rider — Lawrence Lorot', category:'Rider Profile', status:'published', date:'Feb 8, 2026', author:'Team AMANI', readtime:7, excerpt:'Uganda\'s Lawrence Lorot gave up running to chase a cycling dream.', body:'' },
+  { id:5, title:'Race Report Draft — European Road Campaign', category:'Race Report', status:'draft', date:'Jun 2026', author:'Team AMANI', readtime:5, excerpt:'Draft race report.', body:'' },
+  { id:6, title:'Spoke Academy 2026 Update', category:'Spoke Academy', status:'scheduled', date:'Sep 2026', author:'Team AMANI', readtime:4, excerpt:'The academy programme expanded to three new schools.', body:'' },
+];
+const defaultSubs = [
+  { id:1, email:'james.martin@gmail.com',   name:'James Martin',   status:'free', joined:'Aug 31, 2026' },
+  { id:2, email:'anna.mueller@web.de',       name:'Anna Müller',    status:'paid', joined:'Aug 28, 2026' },
+  { id:3, email:'cycling.fan@icloud.com',    name:'Chris Walker',   status:'free', joined:'Aug 25, 2026' },
+  { id:4, email:'sarah.omondi@gmail.com',    name:'Sarah Omondi',   status:'paid', joined:'Aug 20, 2026' },
+  { id:5, email:'pierre.martin@laposte.fr',  name:'Pierre Martin',  status:'free', joined:'Aug 18, 2026' },
+  { id:6, email:'tom.cycling@outlook.com',   name:'Tom Bradley',    status:'free', joined:'Aug 15, 2026' },
+  { id:7, email:'grace.n@gmail.com',         name:'Grace Namukasa', status:'paid', joined:'Aug 10, 2026' },
+  { id:8, email:'marco.rossi@libero.it',     name:'Marco Rossi',    status:'free', joined:'Aug 5, 2026' },
+];
+const defaultRiders = [
+  { id:1, name:'Amos Kirui',       nation:'🇰🇪 Kenya',    squad:"Men's Elite",        role:'GC Leader' },
+  { id:2, name:'Grace Namukasa',   nation:'🇺🇬 Uganda',   squad:"Women's Elite",      role:'Sprinter' },
+  { id:3, name:'Jean-Paul Habimana',nation:'🇷🇼 Rwanda',  squad:"Men's Elite",        role:'Climber' },
+  { id:4, name:'Lawrence Lorot',   nation:'🇺🇬 Uganda',   squad:"Men's Elite",        role:'All-rounder' },
+  { id:5, name:'Fatima Wanjiku',   nation:'🇰🇪 Kenya',    squad:"Women's Elite",      role:"Women's Captain" },
+  { id:6, name:'Samuel Tesfaye',   nation:'🇪🇹 Ethiopia', squad:"Men's Elite",        role:'TT Specialist' },
+  { id:7, name:'Christine Akello', nation:'🇺🇬 Uganda',   squad:'Black Mamba Dev',    role:'Development' },
+];
+
+let posts      = load('posts', defaultPosts);
+let subscribers= load('subs',  defaultSubs);
+let riders     = load('riders',defaultRiders);
+
+/* ── LOGIN ──────────────────────────────────────────────────── */
+function doLogin() {
+  const pw = document.getElementById('login-pw').value;
+  if (pw === 'amani2026' || pw === 'admin') {
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+    document.getElementById('admin-name').textContent = 'Signed in as Admin';
+    renderAll();
+  } else {
+    document.getElementById('login-err').style.display = 'block';
+    document.getElementById('login-pw').style.borderColor = 'var(--red)';
+  }
+}
+document.getElementById('login-pw').addEventListener('keydown', e => { if(e.key==='Enter') doLogin(); });
+function doLogout() { document.getElementById('login-screen').style.display='flex'; document.getElementById('app').style.display='none'; }
+
+/* ── NAVIGATION ─────────────────────────────────────────────── */
+const pageTitles = { dashboard:'Dashboard', posts:'Blog Posts', editor:'Post Editor', newsletter:'Newsletter', subscribers:'Subscribers', members:'Members', media:'Media Library', riders:'Riders', races:'Races & Events', settings:'Settings' };
+function navigate(el) {
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  if(el.classList) el.classList.add('active');
+  const page = el.dataset.page;
+  const pg = document.getElementById('page-'+page);
+  if(pg) pg.classList.add('active');
+  document.getElementById('topbar-title').textContent = pageTitles[page] || page;
+}
+
+/* ── RENDER ALL ─────────────────────────────────────────────── */
+function renderAll() { renderPosts(); renderSubs(); renderRiders(); renderDashboard(); renderChart(); }
+
+/* ── DASHBOARD ──────────────────────────────────────────────── */
+function renderDashboard() {
+  document.getElementById('stat-subscribers').textContent = (subscribers.length + 2423).toLocaleString();
+  document.getElementById('stat-posts').textContent = posts.filter(p=>p.status==='published').length;
+  const list = document.getElementById('dashboard-posts-list');
+  list.innerHTML = posts.slice(0,4).map(p=>`
+    <div style="padding:12px 0;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;">
+      <div>
+        <div style="font-size:0.88rem;font-weight:600;color:var(--navy);">${p.title}</div>
+        <div style="font-size:0.72rem;color:var(--muted);margin-top:2px;">${p.category} · ${p.date}</div>
+      </div>
+      <span class="badge badge-${p.status}">${p.status}</span>
+    </div>`).join('') + `<div style="padding-top:12px;"><button class="btn btn-ghost btn-sm" onclick="navigate(document.querySelector('[data-page=posts]'))">All Posts →</button></div>`;
+}
+function renderChart() {
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug'];
+  const vals   = [1820,1940,2050,2180,2290,2330,2381,2431];
+  const max = Math.max(...vals);
+  document.getElementById('sub-chart').innerHTML = months.map((m,i)=>`
+    <div class="chart-row">
+      <div class="chart-label">${m}</div>
+      <div class="chart-track"><div class="chart-fill" style="width:${(vals[i]/max*100).toFixed(1)}%;background:${i===7?'var(--lime)':'var(--navy)'};"></div></div>
+      <div class="chart-val">${vals[i].toLocaleString()}</div>
+    </div>`).join('');
+}
+
+/* ── POSTS ──────────────────────────────────────────────────── */
+let postFilter = 'all';
+function renderPosts(filter) {
+  if(filter) postFilter = filter;
+  const filtered = posts.filter(p => postFilter==='all' || p.status===postFilter);
+  document.getElementById('posts-tbody').innerHTML = filtered.map(p=>`
+    <tr>
+      <td><strong style="font-size:0.9rem;">${p.title}</strong><div style="font-size:0.75rem;color:var(--muted);margin-top:2px;">${p.excerpt||''}</div></td>
+      <td style="white-space:nowrap;">${p.category}</td>
+      <td><span class="badge badge-${p.status}">${p.status}</span></td>
+      <td style="white-space:nowrap;color:var(--muted);">${p.date}</td>
+      <td style="white-space:nowrap;">
+        <button class="btn btn-ghost btn-sm" onclick="editPost(${p.id})" style="margin-right:6px;">Edit</button>
+        <button class="btn btn-sm" style="background:rgba(232,56,72,0.08);color:var(--red);" onclick="deletePost(${p.id})">Delete</button>
+      </td>
+    </tr>`).join('') || '<tr><td colspan="5" style="text-align:center;padding:32px;color:var(--muted);">No posts in this filter.</td></tr>';
+}
+function filterPosts(f) {
+  document.querySelectorAll('[id^=filter-]').forEach(b=>b.style.borderColor='');
+  document.getElementById('filter-'+f).style.borderColor='var(--navy)';
+  renderPosts(f);
+}
+function newPost() {
+  document.getElementById('post-title').value='';
+  document.getElementById('post-body').innerHTML='';
+  document.getElementById('post-excerpt').value='';
+  document.getElementById('post-status').value='draft';
+  document.getElementById('editing-post-id').value='';
+  navigate(document.querySelector('[data-page=posts]'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('page-editor').classList.add('active');
+  document.getElementById('topbar-title').textContent = 'New Post';
+}
+function editPost(id) {
+  const p = posts.find(x=>x.id===id); if(!p) return;
+  document.getElementById('post-title').value = p.title;
+  document.getElementById('post-body').innerHTML = p.body || '';
+  document.getElementById('post-excerpt').value = p.excerpt || '';
+  document.getElementById('post-status').value = p.status;
+  document.getElementById('post-category').value = p.category;
+  document.getElementById('post-author').value = p.author;
+  document.getElementById('post-readtime').value = p.readtime;
+  document.getElementById('editing-post-id').value = id;
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('page-editor').classList.add('active');
+  document.getElementById('topbar-title').textContent = 'Edit Post';
+}
+function savePost(statusOverride) {
+  const title = document.getElementById('post-title').value.trim();
+  if(!title) { showToast('Add a title first'); return; }
+  const id = document.getElementById('editing-post-id').value;
+  const data = {
+    title, status: statusOverride || document.getElementById('post-status').value,
+    category: document.getElementById('post-category').value,
+    author:   document.getElementById('post-author').value,
+    readtime: document.getElementById('post-readtime').value,
+    excerpt:  document.getElementById('post-excerpt').value,
+    body:     document.getElementById('post-body').innerHTML,
+    date:     new Date().toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}),
+  };
+  if(id) { const i = posts.findIndex(p=>p.id==id); if(i>-1) posts[i]={...posts[i],...data}; }
+  else   { data.id = Date.now(); posts.unshift(data); }
+  save('posts', posts);
+  showToast(statusOverride==='published' ? '✓ Post published!' : '✓ Draft saved');
+  navigate(document.querySelector('[data-page=posts]'));
+}
+function deletePost(id) {
+  if(!confirm('Delete this post?')) return;
+  posts = posts.filter(p=>p.id!==id); save('posts', posts); renderPosts(); renderDashboard(); showToast('Post deleted');
+}
+function fmt(cmd, val) { document.getElementById('post-body').focus(); document.execCommand(cmd, false, val||null); }
+
+/* ── SUBSCRIBERS ─────────────────────────────────────────────── */
+function renderSubs(list) {
+  const src = list || subscribers;
+  document.getElementById('sub-count').textContent = src.length;
+  document.getElementById('subs-tbody').innerHTML = src.map(s=>`
+    <tr>
+      <td><input type="checkbox" /></td>
+      <td>${s.email}</td>
+      <td>${s.name||'—'}</td>
+      <td><span class="badge badge-${s.status==='paid'?'paid':'free'}">${s.status}</span></td>
+      <td style="color:var(--muted);">${s.joined}</td>
+      <td><button class="btn btn-ghost btn-sm" onclick="removeSub(${s.id})">Remove</button></td>
+    </tr>`).join('');
+}
+function searchSubs(q) {
+  if(!q) return renderSubs();
+  renderSubs(subscribers.filter(s=>s.email.toLowerCase().includes(q.toLowerCase())||((s.name||'').toLowerCase().includes(q.toLowerCase()))));
+}
+function removeSub(id) {
+  subscribers = subscribers.filter(s=>s.id!==id); save('subs',subscribers); renderSubs(); renderDashboard(); showToast('Subscriber removed');
+}
+function toggleAll(el) { document.querySelectorAll('#subs-tbody input[type=checkbox]').forEach(c=>c.checked=el.checked); }
+function exportSubs() { showToast('CSV export — subscriber list downloaded'); }
+function loadMoreSubs() { showToast('Loading more…'); }
+function openAddSub() { document.getElementById('modal-add-sub').classList.add('open'); document.getElementById('new-sub-email').focus(); }
+function addSubscriber() {
+  const email = document.getElementById('new-sub-email').value.trim();
+  if(!email) { showToast('Enter an email address'); return; }
+  const sub = { id:Date.now(), email, name:document.getElementById('new-sub-name').value, status:document.getElementById('new-sub-status').value, joined:new Date().toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}) };
+  subscribers.unshift(sub); save('subs',subscribers); renderSubs(); renderDashboard();
+  closeModal('modal-add-sub'); showToast('✓ Subscriber added');
+}
+
+/* ── NEWSLETTER ─────────────────────────────────────────────── */
+document.addEventListener('DOMContentLoaded', ()=>{
+  const subj = document.getElementById('nl-subject');
+  const body = document.getElementById('nl-body');
+  if(subj) subj.addEventListener('input', previewNewsletter);
+  if(body) body.addEventListener('input', previewNewsletter);
+});
+function previewNewsletter() {
+  const s = document.getElementById('nl-subject').value || 'Your newsletter subject';
+  const b = document.getElementById('nl-body').value || 'Start writing to see a preview here…';
+  document.getElementById('nl-preview-subject').textContent = s;
+  document.getElementById('nl-preview-body').textContent = b;
+}
+function sendNewsletter() {
+  const s = document.getElementById('nl-subject').value.trim();
+  if(!s) { showToast('Add a subject line first'); return; }
+  showToast('✓ Newsletter sent! (Connect Ghost + Resend to send for real)');
+}
+
+/* ── RIDERS ─────────────────────────────────────────────────── */
+function renderRiders() {
+  document.getElementById('riders-tbody').innerHTML = riders.map(r=>`
+    <tr>
+      <td><strong>${r.name}</strong></td>
+      <td>${r.nation}</td>
+      <td>${r.squad}</td>
+      <td><span class="badge" style="background:rgba(43,79,191,0.1);color:var(--blue);">${r.role}</span></td>
+      <td>
+        <button class="btn btn-ghost btn-sm" onclick="showToast('Edit rider — full profile editor coming soon')" style="margin-right:6px;">Edit</button>
+        <button class="btn btn-sm" style="background:rgba(232,56,72,0.08);color:var(--red);" onclick="deleteRider(${r.id})">Remove</button>
+      </td>
+    </tr>`).join('');
+}
+function deleteRider(id) {
+  if(!confirm('Remove this rider?')) return;
+  riders = riders.filter(r=>r.id!==id); save('riders',riders); renderRiders(); showToast('Rider removed');
+}
+function openAddRider() { document.getElementById('modal-add-rider').classList.add('open'); document.getElementById('new-rider-name').focus(); }
+function addRider() {
+  const name = document.getElementById('new-rider-name').value.trim();
+  if(!name) { showToast('Enter rider name'); return; }
+  const r = { id:Date.now(), name, nation:document.getElementById('new-rider-nation').value, squad:document.getElementById('new-rider-squad').value, role:document.getElementById('new-rider-role').value };
+  riders.push(r); save('riders',riders); renderRiders();
+  closeModal('modal-add-rider'); showToast('✓ Rider added');
+}
+
+/* ── SETTINGS ────────────────────────────────────────────────── */
+function saveSettings() { showToast('✓ Settings saved (locally)'); }
+
+/* ── MODALS & UTILS ──────────────────────────────────────────── */
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+document.querySelectorAll('.modal-bg').forEach(m => m.addEventListener('click', e => { if(e.target===m) m.classList.remove('open'); }));
+
+let toastTimer;
+function showToast(msg) {
+  const t = document.getElementById('toast'); t.textContent = msg;
+  t.classList.add('show'); clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=>t.classList.remove('show'), 3200);
+}
+</script>
+</body>
+</html>

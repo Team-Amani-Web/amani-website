@@ -1,0 +1,32 @@
+# Team AMANI — static site (pre-Astro)
+
+[build]
+  publish = "."
+
+# Long cache for static assets; they're versioned by filename.
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+# Sensible baseline security headers.
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    X-Frame-Options = "SAMEORIGIN"
+
+# Pretty URL for the demo admin panel.
+[[redirects]]
+  from = "/admin"
+  to = "/admin.html"
+  status = 200
+
+# Pages not built yet (blog, team, races, amani-house, spoke-academy,
+# contact) fall back to the homepage instead of a 404.
+# REMOVE THIS once the real pages exist in Astro.
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
