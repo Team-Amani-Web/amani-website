@@ -1,7 +1,9 @@
 ---
 import Base from "../../layouts/Base.astro";
 import PageHeader from "../../components/PageHeader.astro";
-import races from "../../data/races.json";
+import { getRaces } from "../../lib/content";
+
+const races = await getRaces();
 
 const organised = races.filter((r) => r.kind === "organised");
 const attending = races.filter((r) => r.kind === "attending");

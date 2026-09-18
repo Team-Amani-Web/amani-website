@@ -1,16 +1,19 @@
 ---
 import Base from "../../layouts/Base.astro";
 import StoryCard from "../../components/StoryCard.astro";
-import riders from "../../data/riders.json";
-import stories from "../../data/stories.json";
+import { getRiders, getStories } from "../../lib/content";
 
-export function getStaticPaths() {
-  return riders.map((r) => ({ params: { slug: r.slug }, props: { rider: r } }));
+export async function getStaticPaths() {
+  const [riders, stories] = await Promise.all([getRiders(), getStories()]);
+  return riders.map((r) => ({
+    params: { slug: r.slug },
+    props: { rider: r, stories },
+  }));
 }
 
-const { rider } = Astro.props;
-const related = stories.filter(
-  (s) => s.status === "published" && s.title.toLowerCase().includes(rider.name.split(" ")[0].toLowerCase())
+const { rider, stories } = Astro.props;
+const related = stories.filter((s) =>
+  s.title.toLowerCase().includes(rider.name.split(" ")[0].toLowerCase())
 );
 ---
 <Base title={rider.name} description={rider.bio} image={rider.photo} current="team">
@@ -36,7 +39,7 @@ const related = stories.filter(
         </div>
         <div class="prose-narrow">
           <p style="font-size:1.1rem;">{rider.bio}</p>
-          {rider.palmares.length > 0 && (
+          {rider.palmares?.length > 0 && (
             <>
               <h2 class="squad-heading" style="margin-top:32px;font-size:1.5rem;">Results</h2>
               <ul class="palmares">{rider.palmares.map((p) => <li>{p}</li>)}</ul>

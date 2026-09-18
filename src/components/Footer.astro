@@ -1,5 +1,7 @@
 ---
-import settings from "../data/settings.json";
+import { getSettings } from "../lib/content";
+
+const settings = await getSettings();
 const year = new Date().getFullYear();
 ---
 <footer class="footer">

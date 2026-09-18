@@ -1,7 +1,9 @@
 ---
 import Base from "../../layouts/Base.astro";
 import PageHeader from "../../components/PageHeader.astro";
-import partners from "../../data/partners.json";
+import { getPartners } from "../../lib/content";
+
+const partners = await getPartners();
 
 const tiers = [...new Set(partners.map((p) => p.tier))];
 ---

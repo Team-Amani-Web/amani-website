@@ -1,15 +1,19 @@
 ---
 import Base from "../layouts/Base.astro";
 import StoryCard from "../components/StoryCard.astro";
-import programmes from "../data/programmes.json";
-import stories from "../data/stories.json";
+import { getProgrammes, getStories } from "../lib/content";
+import { PortableText } from "astro-portabletext";
 
-export function getStaticPaths() {
-  return programmes.map((p) => ({ params: { programme: p.slug }, props: { programme: p } }));
+export async function getStaticPaths() {
+  const [programmes, stories] = await Promise.all([getProgrammes(), getStories()]);
+  return programmes.map((p) => ({
+    params: { programme: p.slug },
+    props: { programme: p, stories },
+  }));
 }
 
-const { programme } = Astro.props;
-const related = stories.filter((s) => s.status === "published" && s.category === programme.title).slice(0, 3);
+const { programme, stories } = Astro.props;
+const related = stories.filter((s) => s.category === programme.title).slice(0, 3);
 ---
 <Base title={programme.title} description={programme.summary} image={programme.image} current={programme.slug}>
   <header class="page-head">
@@ -25,7 +29,9 @@ const related = stories.filter((s) => s.status === "published" && s.category ===
   <section class="page-section">
     <div class="container">
       <div class="article-wrap">
-        <Fragment set:html={programme.body} />
+        {typeof programme.body === "string"
+          ? <Fragment set:html={programme.body} />
+          : <PortableText value={programme.body} />}
       </div>
     </div>
   </section>

@@ -2,12 +2,13 @@
 import Base from "../layouts/Base.astro";
 import StoryCard from "../components/StoryCard.astro";
 import RiderCard from "../components/RiderCard.astro";
-import riders from "../data/riders.json";
-import stories from "../data/stories.json";
-import settings from "../data/settings.json";
+import { getRiders, getStories, getSettings } from "../lib/content";
 
-const published = stories.filter((s) => s.status === "published")
-  .sort((a, b) => b.date.localeCompare(a.date));
+const riders = await getRiders();
+const stories = await getStories();
+const settings = await getSettings();
+
+const published = [...stories].sort((a, b) => b.date.localeCompare(a.date));
 const featured = published.find((s) => s.featured) ?? published[0];
 const recent = published.filter((s) => s.slug !== featured.slug).slice(0, 6);
 

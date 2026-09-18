@@ -1,8 +1,9 @@
 ---
 import Base from "../../layouts/Base.astro";
-import races from "../../data/races.json";
+import { getRaces } from "../../lib/content";
 
-export function getStaticPaths() {
+export async function getStaticPaths() {
+  const races = await getRaces();
   return races.map((r) => ({ params: { slug: r.slug }, props: { race: r } }));
 }
 const { race } = Astro.props;

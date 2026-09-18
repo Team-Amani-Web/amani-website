@@ -1,19 +1,20 @@
 ---
 import Base from "../../layouts/Base.astro";
 import StoryCard from "../../components/StoryCard.astro";
-import stories from "../../data/stories.json";
+import { getStories } from "../../lib/content";
+import { PortableText } from "astro-portabletext";
 
-export function getStaticPaths() {
-  return stories
-    .filter((s) => s.status === "published")
-    .map((s) => ({ params: { slug: s.slug }, props: { story: s } }));
+export async function getStaticPaths() {
+  const stories = await getStories();
+  return stories.map((s) => ({
+    params: { slug: s.slug },
+    props: { story: s, all: stories },
+  }));
 }
 
-const { story } = Astro.props;
+const { story, all } = Astro.props;
 const date = new Date(story.date).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
-const more = stories
-  .filter((s) => s.status === "published" && s.slug !== story.slug)
-  .slice(0, 3);
+const more = all.filter((s) => s.slug !== story.slug).slice(0, 3);
 ---
 <Base title={story.title} description={story.excerpt} image={story.image} current="stories">
   <header class="page-head">
@@ -30,7 +31,9 @@ const more = stories
     <div class="container">
       <div class="article-wrap">
         <p style="font-size:1.15rem;font-weight:500;">{story.excerpt}</p>
-        <Fragment set:html={story.body} />
+        {typeof story.body === "string"
+          ? <Fragment set:html={story.body} />
+          : <PortableText value={story.body} />}
         <p style="margin-top:36px;"><a href="/stories/" style="border-bottom:2px solid var(--red);">← All stories</a></p>
       </div>
     </div>

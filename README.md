@@ -52,3 +52,41 @@ Prototype for review. Not production.
 2. Sanity schemas matching the admin mockup's sections
 3. Shopify Storefront API in `src/pages/shop/index.astro` — the product
    fields already use Shopify's names, so only `getProducts()` changes
+
+---
+
+## Sanity CMS
+
+Project `vufb5el5`, dataset `production`. The editing interface is part of this
+site: **`/studio/`**.
+
+### How content flows
+
+`src/lib/content.ts` is the only place that fetches content. Every page calls it.
+It queries Sanity first and falls back to the JSON in `src/data/` if Sanity has
+nothing — so the site always builds, and nothing breaks while content is being
+entered.
+
+Once a document type has content in Sanity, its JSON seed stops being used.
+
+### One-off: load the seed content into Sanity
+
+```bash
+SANITY_WRITE_TOKEN=xxx npm run seed
+```
+
+Create the token at sanity.io/manage → API → Tokens, with **Editor** permission.
+It is a secret: put it in Bitwarden, never in the repo. Safe to re-run — it
+updates rather than duplicates. Images aren't uploaded; add those in the Studio.
+
+### Inviting people
+
+sanity.io/manage → Members → Invite. They sign in with Google, GitHub or email —
+no account needed in advance. The free plan includes 20 seats, and viewers
+(read-only) are free.
+
+### Publishing triggers a rebuild
+
+Sanity → Manage → API → Webhooks. Point it at the build hook from
+Netlify → Site configuration → Build & deploy → Build hooks. Without this,
+edits save in Sanity but the site won't rebuild until the next push.

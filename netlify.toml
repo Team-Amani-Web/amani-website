@@ -33,3 +33,9 @@
 
 # NOTE: no catch-all redirect. Real pages now exist, and a catch-all would
 # hide genuine broken links behind the homepage.
+
+# The Studio is a single-page app — every /studio/* path must serve its shell.
+[[redirects]]
+  from = "/studio/*"
+  to = "/studio/index.html"
+  status = 200

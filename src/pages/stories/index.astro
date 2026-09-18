@@ -2,10 +2,11 @@
 import Base from "../../layouts/Base.astro";
 import PageHeader from "../../components/PageHeader.astro";
 import StoryCard from "../../components/StoryCard.astro";
-import stories from "../../data/stories.json";
+import { getStories } from "../../lib/content";
 
-const published = stories.filter((s) => s.status === "published")
-  .sort((a, b) => b.date.localeCompare(a.date));
+const stories = await getStories();
+
+const published = [...stories].sort((a, b) => b.date.localeCompare(a.date));
 const categories = ["All", ...new Set(published.map((s) => s.category))];
 ---
 <Base title="Stories" current="stories" description="Race reports, rider stories and team news from Team AMANI.">
