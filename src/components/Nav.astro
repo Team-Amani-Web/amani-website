@@ -1,0 +1,21 @@
+---
+const { current = "" } = Astro.props;
+const links = [
+  { href: "/stories/", label: "Stories", key: "stories" },
+  { href: "/team/",    label: "Team",    key: "team" },
+  { href: "/races/",   label: "Races",   key: "races" },
+  { href: "/amani-house/",   label: "AMANI House", key: "amani-house" },
+  { href: "/spoke-academy/", label: "Academy",     key: "spoke-academy" },
+];
+---
+<nav id="site-nav">
+  <a class="nav-logo" href="/"><img src="/assets/img/logo-white.png" alt="Team AMANI" /></a>
+  <ul class="nav-links">
+    {links.map((l) => (
+      <li><a href={l.href} aria-current={current === l.key ? "page" : undefined}>{l.label}</a></li>
+    ))}
+  </ul>
+  <div class="nav-right">
+    <a class="nav-subscribe" href="/#community">Subscribe</a>
+  </div>
+</nav>

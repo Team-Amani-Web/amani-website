@@ -1,0 +1,51 @@
+---
+import Base from "../../layouts/Base.astro";
+import races from "../../data/races.json";
+
+export function getStaticPaths() {
+  return races.map((r) => ({ params: { slug: r.slug }, props: { race: r } }));
+}
+const { race } = Astro.props;
+---
+<Base title={race.name} description={race.summary} image={race.image} current="races">
+  <header class="page-head">
+    <div class="container">
+      <p class="page-head-eyebrow">{race.eyebrow}</p>
+      <h1 class="page-head-title">{race.name}</h1>
+      <p class="page-head-lede">{race.summary}</p>
+    </div>
+  </header>
+
+  <div class="article-hero" style={`background-image:url('${race.image}')`}></div>
+
+  <section class="page-section">
+    <div class="container">
+      <div class="rider-profile">
+        <div>
+          <ul class="rider-facts">
+            <li><span>Dates</span><span>{race.dates}</span></li>
+            <li><span>Location</span><span>{race.location}</span></li>
+            <li><span>Category</span><span>{race.category}</span></li>
+            <li><span>Status</span><span>{race.status === "upcoming" ? "Upcoming" : "Completed"}</span></li>
+          </ul>
+          {race.externalUrl && (
+            <p style="margin-top:22px;">
+              <a class="race-row-link" href={race.externalUrl} target="_blank" rel="noopener">
+                {race.linkLabel || "Race website"} ↗
+              </a>
+            </p>
+          )}
+        </div>
+        <div class="prose-narrow">
+          <p style="font-size:1.1rem;">{race.summary}</p>
+          <p>
+            {race.kind === "organised"
+              ? "This is an AMANI event. Entries, route information and travel details live on the race website."
+              : "Team AMANI travels to this race as part of the season calendar."}
+          </p>
+          <p style="margin-top:32px;"><a href="/races/" style="border-bottom:2px solid var(--red);">← Race calendar</a></p>
+        </div>
+      </div>
+    </div>
+  </section>
+</Base>

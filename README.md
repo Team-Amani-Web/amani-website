@@ -1,26 +1,54 @@
 # Team AMANI — website
 
-Static demo site. Hosted on Netlify, deployed from this repo.
+Astro static site. Deployed to Netlify from this repo: every push to `main`
+rebuilds and publishes.
+
+## Run it locally
+
+```bash
+npm install
+npm run dev      # http://localhost:4321
+npm run build    # outputs to dist/
+```
+
+## How content works
+
+Content lives in `src/data/*.json`. Pages are generated from it at build time —
+add a rider to `riders.json` and `/riders/<slug>/` appears on the next build.
+
+| File | Drives |
+|---|---|
+| `riders.json` | `/team/`, `/riders/<slug>/`, homepage squad, the rider and nation counts |
+| `stories.json` | `/stories/`, `/stories/<slug>/`, homepage feed and cover story |
+| `races.json` | `/races/`, `/races/<slug>/` |
+| `programmes.json` | `/amani-house/`, `/spoke-academy/`, `/black-mamba/` |
+| `partners.json` | `/partners/` |
+| `shop.json` | `/shop/` |
+| `settings.json` | Site title, description, social links, ticker |
+
+These JSON files are the step before a CMS. When Sanity is connected, the
+page templates stay as they are — only the data source changes.
 
 ## Status
 
 Prototype for review. Not production.
 
-- `index.html` — homepage (single scrolling page)
-- `admin.html` — **demo only.** The login is hardcoded and data is stored in
-  the browser's localStorage. Nothing is saved to a server and nothing is
-  shared between devices. It exists to show what the CMS will feel like.
-- `assets/img/placeholder-*.svg` — stand-ins. Real photography to follow.
+- `public/admin-a7f3c9.html` — **demo only.** The login is hardcoded and data
+  is stored in the browser's localStorage. Nothing is saved to a server and
+  nothing is shared between devices. It shows what the CMS will feel like.
+- `public/assets/img/placeholder-*.svg` — stand-ins. Real photography to follow.
+- `public/robots.txt` blocks search engines while the site is in progress.
+  **Remove that before launch.**
+- Homepage copy, story bodies and programme text are placeholders.
 
-## Known gaps
+## Missing
 
-- Nav links to `blog.html`, `team.html`, `races.html`, `amani-house.html`,
-  `spoke-academy.html` and `contact.html` — these pages don't exist yet.
-  `netlify.toml` redirects them to the homepage so they don't 404.
-- Homepage counts (18 riders, 5 nations) are hardcoded in the markup.
-- CSS is inline in `index.html` (~600 lines).
+- `public/assets/img/logo-white.png` — referenced by the nav and hero.
+  Drop the real file in or both render empty.
 
 ## Next
 
-Convert to Astro so pages are generated from content, then connect a CMS
-(Sanity) so non-developers can edit riders, races and stories.
+1. Real photography, replacing the placeholder SVGs
+2. Sanity schemas matching the admin mockup's sections
+3. Shopify Storefront API in `src/pages/shop/index.astro` — the product
+   fields already use Shopify's names, so only `getProducts()` changes

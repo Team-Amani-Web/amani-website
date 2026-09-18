@@ -1,0 +1,42 @@
+---
+import Base from "../../layouts/Base.astro";
+import PageHeader from "../../components/PageHeader.astro";
+import StoryCard from "../../components/StoryCard.astro";
+import stories from "../../data/stories.json";
+
+const published = stories.filter((s) => s.status === "published")
+  .sort((a, b) => b.date.localeCompare(a.date));
+const categories = ["All", ...new Set(published.map((s) => s.category))];
+---
+<Base title="Stories" current="stories" description="Race reports, rider stories and team news from Team AMANI.">
+  <PageHeader
+    eyebrow="From the team"
+    title="Stories"
+    lede="Race reports the day after the finish line, rider stories you won't find anywhere else, and life at AMANI House."
+  />
+  <section class="page-section">
+    <div class="container">
+      <div class="feed-filters">
+        {categories.map((c) => (
+          <button class:list={["filter-btn", c === "All" && "active"]} data-cat={c}>{c}</button>
+        ))}
+      </div>
+      <div class="grid-cards" id="story-grid">
+        {published.map((s) => <StoryCard story={s} />)}
+      </div>
+    </div>
+  </section>
+
+  <script is:inline>
+    document.querySelectorAll('.filter-btn').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.filter-btn').forEach((b) => b.classList.remove('active'));
+        btn.classList.add('active');
+        const cat = btn.dataset.cat;
+        document.querySelectorAll('#story-grid .article-card').forEach((card) => {
+          card.style.display = (cat === 'All' || card.dataset.cat === cat) ? '' : 'none';
+        });
+      });
+    });
+  </script>
+</Base>

@@ -1,0 +1,46 @@
+---
+import Base from "../../layouts/Base.astro";
+import PageHeader from "../../components/PageHeader.astro";
+import shop from "../../data/shop.json";
+
+// When the Shopify store opens, replace this with a Storefront API query.
+// The product shape below already matches Shopify's field names, so only
+// this function changes — the markup below stays exactly as it is.
+function getProducts() {
+  return shop.products;
+}
+const products = getProducts();
+---
+<Base title="Shop" current="shop" description="Team AMANI merchandise — opening soon.">
+  <PageHeader
+    eyebrow="Merchandise"
+    title="Shop"
+    lede="The team store isn't open yet. Tell us what you'd wear and we'll let you know the moment it is."
+  />
+  <section class="page-section">
+    <div class="container">
+      <div class="shop-grid">
+        {products.map((p) => (
+          <div class="shop-card">
+            <div class="shop-card-visual"><span>Coming soon</span></div>
+            <div class="shop-card-body">
+              <div class="shop-card-name">{p.title}</div>
+              <div class="shop-card-price">{p.availableForSale ? `${p.price} ${p.currencyCode}` : "Not yet available"}</div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div class="prose-narrow" style="margin-top:48px;">
+        <h2 class="squad-heading">Register interest</h2>
+        <p>Leave your email and tell us what you'd like us to make.</p>
+        <form class="form-row" name="shop-interest" method="POST" data-netlify="true">
+          <input type="hidden" name="form-name" value="shop-interest" />
+          <input type="email" name="email" placeholder="Your email" required />
+          <input type="text" name="wants" placeholder="What would you buy?" />
+          <button type="submit">Notify me</button>
+        </form>
+      </div>
+    </div>
+  </section>
+</Base>

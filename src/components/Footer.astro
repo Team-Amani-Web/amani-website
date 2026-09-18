@@ -1,0 +1,60 @@
+---
+import settings from "../data/settings.json";
+const year = new Date().getFullYear();
+---
+<footer class="footer">
+  <div class="footer-stripe">
+    <span style="background:var(--lime)"></span>
+    <span style="background:var(--blue)"></span>
+    <span style="background:var(--red)"></span>
+    <span style="background:var(--lime)"></span>
+    <span style="background:var(--navy)"></span>
+  </div>
+  <div class="footer-top">
+    <div class="container">
+      <div class="footer-grid">
+        <div>
+          <div class="footer-brand">TEAM<br /><span>AMANI</span></div>
+          <p class="footer-tagline">Developing East African distance runners into elite cyclists. Building a cycling legacy for the continent.</p>
+          <div class="footer-social">
+            <a href={settings.social.instagram} class="social-pill">Instagram</a>
+            <a href={settings.social.twitter} class="social-pill">Twitter / X</a>
+            <a href={settings.social.youtube} class="social-pill">YouTube</a>
+          </div>
+        </div>
+        <div>
+          <p class="footer-col-title">Team</p>
+          <ul class="footer-links">
+            <li><a href="/team/">Riders</a></li>
+            <li><a href="/amani-house/">AMANI House</a></li>
+            <li><a href="/spoke-academy/">Spoke Academy</a></li>
+            <li><a href="/partners/">Partners</a></li>
+          </ul>
+        </div>
+        <div>
+          <p class="footer-col-title">Races</p>
+          <ul class="footer-links">
+            <li><a href="/races/migration-gravel-race/">Migration Gravel Race</a></li>
+            <li><a href="/races/safari-gravel-race/">Safari Gravel Series</a></li>
+            <li><a href="/races/">Race Calendar</a></li>
+          </ul>
+        </div>
+        <div>
+          <p class="footer-col-title">Community</p>
+          <ul class="footer-links">
+            <li><a href="/stories/">Stories &amp; News</a></li>
+            <li><a href="/shop/">Shop</a></li>
+            <li><a href="/#community">Newsletter</a></li>
+            <li><a href="/contact/">Contact</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <div class="container footer-bottom-inner">
+      <span>© {year} Team AMANI · UCI Continental Team · Iten, Kenya</span>
+      <span>All Rights Reserved</span>
+    </div>
+  </div>
+</footer>

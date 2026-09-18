@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" width="800" height="600" role="img" aria-label="STORY IMAGE placeholder">
+  <rect width="800" height="600" fill="#1E1A3A"/>
+  <g fill="none" stroke="#C42020" stroke-width="3" opacity="0.55">
+    <rect x="12" y="12" width="776" height="576"/>
+    <line x1="12" y1="12" x2="788" y2="588"/>
+    <line x1="788" y1="12" x2="12" y2="588"/>
+  </g>
+  <rect x="0" y="266" width="800" height="68" fill="#1E1A3A"/>
+  <text x="400" y="294" font-family="Barlow Condensed, Arial Narrow, sans-serif" font-size="26" font-weight="700" letter-spacing="3" fill="#F5F1EB" text-anchor="middle">STORY IMAGE</text>
+  <text x="400" y="322" font-family="Barlow Condensed, Arial Narrow, sans-serif" font-size="17" letter-spacing="2" fill="#C42020" text-anchor="middle">800 × 600 · IMAGE PENDING</text>
+</svg>

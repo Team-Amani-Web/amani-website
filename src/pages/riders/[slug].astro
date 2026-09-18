@@ -1,0 +1,59 @@
+---
+import Base from "../../layouts/Base.astro";
+import StoryCard from "../../components/StoryCard.astro";
+import riders from "../../data/riders.json";
+import stories from "../../data/stories.json";
+
+export function getStaticPaths() {
+  return riders.map((r) => ({ params: { slug: r.slug }, props: { rider: r } }));
+}
+
+const { rider } = Astro.props;
+const related = stories.filter(
+  (s) => s.status === "published" && s.title.toLowerCase().includes(rider.name.split(" ")[0].toLowerCase())
+);
+---
+<Base title={rider.name} description={rider.bio} image={rider.photo} current="team">
+  <header class="page-head">
+    <div class="container">
+      <p class="page-head-eyebrow">{rider.flag} {rider.nation} · {rider.squad}</p>
+      <h1 class="page-head-title">{rider.name}</h1>
+    </div>
+  </header>
+
+  <section class="page-section">
+    <div class="container">
+      <div class="rider-profile">
+        <div>
+          <div class="rider-profile-photo" style={`background-image:url('${rider.photo}')`}></div>
+          <ul class="rider-facts">
+            <li><span>Nation</span><span>{rider.flag} {rider.nation}</span></li>
+            <li><span>Squad</span><span>{rider.squad}</span></li>
+            <li><span>Role</span><span>{rider.role}</span></li>
+            <li><span>Born</span><span>{rider.born}</span></li>
+            <li><span>Joined AMANI</span><span>{rider.joined}</span></li>
+          </ul>
+        </div>
+        <div class="prose-narrow">
+          <p style="font-size:1.1rem;">{rider.bio}</p>
+          {rider.palmares.length > 0 && (
+            <>
+              <h2 class="squad-heading" style="margin-top:32px;font-size:1.5rem;">Results</h2>
+              <ul class="palmares">{rider.palmares.map((p) => <li>{p}</li>)}</ul>
+            </>
+          )}
+          <p style="margin-top:32px;"><a href="/team/" style="border-bottom:2px solid var(--red);">← Full squad</a></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  {related.length > 0 && (
+    <section class="page-section tint">
+      <div class="container">
+        <h2 class="squad-heading">Stories</h2>
+        <div class="grid-cards">{related.map((s) => <StoryCard story={s} />)}</div>
+      </div>
+    </section>
+  )}
+</Base>

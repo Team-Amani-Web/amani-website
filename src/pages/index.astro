@@ -1,0 +1,293 @@
+---
+import Base from "../layouts/Base.astro";
+import StoryCard from "../components/StoryCard.astro";
+import RiderCard from "../components/RiderCard.astro";
+import riders from "../data/riders.json";
+import stories from "../data/stories.json";
+import settings from "../data/settings.json";
+
+const published = stories.filter((s) => s.status === "published")
+  .sort((a, b) => b.date.localeCompare(a.date));
+const featured = published.find((s) => s.featured) ?? published[0];
+const recent = published.filter((s) => s.slug !== featured.slug).slice(0, 6);
+
+const riderCount = riders.length;
+const nationCount = new Set(riders.map((r) => r.nation)).size;
+
+const accents = ["var(--lime)", "var(--blue)", "var(--red)", "var(--navy)"];
+const kits = ["var(--blue)", "var(--navy)", "var(--red)", "var(--navy)"];
+---
+
+<Base current="home">
+<!-- ── HERO ─────────────────────────────────────────────────────── -->
+<section class="hero" id="hero">
+  <div class="hero-bg">
+    <div class="hbg-1"></div>
+    <div class="hbg-2"></div>
+    <div class="hbg-3"></div>
+    <div class="hbg-4"></div>
+  </div>
+  <div class="hero-vignette"></div>
+  <div class="hero-body">
+    <p class="hero-eyebrow">UCI Continental Team · East Africa</p>
+    <img class="hero-logo-img" src="/assets/img/logo-white.png" alt="Team AMANI" />
+    <p class="hero-tagline">East African distance runners reborn as elite cyclists. Race reports, rider stories, and community — right here.</p>
+    <form class="hero-subscribe" onsubmit="return handleHeroSubscribe(event)">
+      <input type="email" placeholder="Your email address" required />
+      <button type="submit">Join the community</button>
+    </form>
+    <p class="hero-sub-note">Free to join · No spam · Unsubscribe anytime</p>
+  </div>
+  <div class="hero-stripe">
+    <span style="background:#F5F1EB"></span>
+    <span style="background:var(--red)"></span>
+    <span style="background:var(--navy)"></span>
+    <span style="background:#F5F1EB"></span>
+    <span style="background:var(--red)"></span>
+    <span style="background:var(--navy)"></span>
+  </div>
+  <div class="hero-scroll">
+    <div class="hero-scroll-line"></div>
+    <span>Scroll</span>
+  </div>
+</section>
+
+<!-- ── TICKER ────────────────────────────────────────────────────── -->
+<div class="ticker">
+  <div class="ticker-inner" id="ticker">
+    <span class="ticker-item">Iten, Kenya · 2,400m</span>
+    <span class="ticker-item">Kenya</span>
+    <span class="ticker-item">Uganda</span>
+    <span class="ticker-item">Rwanda</span>
+    <span class="ticker-item">Ethiopia</span>
+    <span class="ticker-item">Migration Gravel Race · May 2026</span>
+    <span class="ticker-item">Safari Gravel Race · UCI</span>
+    <span class="ticker-item">Black Mamba Development Squad</span>
+    <!-- duplicated for loop -->
+    <span class="ticker-item">Iten, Kenya · 2,400m</span>
+    <span class="ticker-item">Kenya</span>
+    <span class="ticker-item">Uganda</span>
+    <span class="ticker-item">Rwanda</span>
+    <span class="ticker-item">Ethiopia</span>
+    <span class="ticker-item">Migration Gravel Race · May 2026</span>
+    <span class="ticker-item">Safari Gravel Race · UCI</span>
+    <span class="ticker-item">Black Mamba Development Squad</span>
+  </div>
+</div>
+
+<!-- ── FEATURED STORY ─────────────────────────────────────────────── -->
+<section class="featured">
+  <div class="container">
+    <span class="section-label reveal">Cover Story</span>
+  </div>
+  <div class="container" style="padding-bottom:0;">
+    <div class="featured-inner reveal">
+      <div class="featured-visual" style="background-image:url('/assets/img/placeholder-feature.svg');background-size:cover;background-position:center;">
+        <div class="featured-visual-bg" style="background-image:linear-gradient(135deg,rgba(30,26,58,0.55) 0%,rgba(30,26,58,0.1) 60%,transparent 100%);"></div>
+        <div class="featured-tag">Race Report</div>
+        <div class="featured-visual-text">RIFT<br />VALLEY</div>
+      </div>
+      <div class="featured-body">
+        <div class="featured-meta">May 2026 · 8 min read · Race Reports</div>
+        <h2 class="featured-title">Four Days in the Rift Valley — Migration Gravel Race 2026</h2>
+        <p class="featured-excerpt">Four stages. A thousand metres of climbing. The most electric race atmosphere in East Africa. Here's how our riders tackled the Mara, the highlands of Iten, and everything in between.</p>
+        <a href="#" class="featured-cta">Read the full story </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── CONTENT FEED ───────────────────────────────────────────────── -->
+<section class="feed-section" id="feed">
+  <div class="container">
+    <div class="feed-header reveal">
+      <div>
+        <span class="section-label">From the team</span>
+        <h2 class="feed-title">Latest Stories</h2>
+      </div>
+      <a href="/stories/" style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:0.78rem;letter-spacing:2px;text-transform:uppercase;color:var(--navy);border-bottom:1.5px solid rgba(30,26,58,0.25);padding-bottom:3px;">All Stories →</a>
+    </div>
+
+    <!-- Filter tabs -->
+    <div class="filter-bar reveal">
+      <button class="filter-btn active" data-cat="all" onclick="filterFeed(this)">All</button>
+      <button class="filter-btn" data-cat="race-report" onclick="filterFeed(this)">Race Reports</button>
+      <button class="filter-btn" data-cat="team-news" onclick="filterFeed(this)">Team News</button>
+      <button class="filter-btn" data-cat="rider-profile" onclick="filterFeed(this)">Rider Profiles</button>
+      <button class="filter-btn" data-cat="amani-house" onclick="filterFeed(this)">AMANI House</button>
+      <button class="filter-btn" data-cat="academy" onclick="filterFeed(this)">Spoke Academy</button>
+    </div>
+
+    <div class="feed-grid" id="feed-grid">
+      {recent.map((s) => <StoryCard story={s} />)}
+    </div>
+
+    <div class="feed-more reveal">
+      <a class="load-more-btn" href="/stories/">All Stories →</a>
+    </div>
+  </div>
+</section>
+
+<!-- ── RIDER SPOTLIGHT ─────────────────────────────────────────────── -->
+<section class="riders-section" id="riders">
+  <div class="container">
+    <div class="riders-header reveal">
+      <span class="section-label lime">The Squad</span>
+      <h2>Meet the Riders</h2>
+      <p>East Africa's most exciting cycling talent. Scroll to explore the squad.</p>
+    </div>
+  </div>
+  <p class="scroll-hint">Drag to scroll →</p>
+  <div class="riders-scroll-wrap">
+    <div class="riders-track" id="riders-track">
+      {riders.slice(0, 8).map((r, i) => <RiderCard rider={r} accent={accents[i % accents.length]} kitBg={kits[i % kits.length]} />)}
+
+      <div class="rider-card" style="border-top:3px solid var(--red); min-width:220px; display:flex; flex-direction:column; justify-content:center; align-items:center; padding:40px 24px; text-align:center; background:rgba(255,255,255,0.03);">
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:3rem;color:var(--lime);line-height:1;">Full<br />Squad</div>
+        <p style="font-size:0.78rem;color:rgba(255,255,255,0.4);margin:12px 0 20px;">All riders across Men's, Women's &amp; Black Mamba Development squads</p>
+        <a href="/team/" class="riders-all-link">Full roster →</a>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ── RACES BAND ──────────────────────────────────────────────────── -->
+<section class="races-band" id="races">
+  <div class="races-band-inner">
+    <div class="race-panel race-panel-1 reveal">
+      <div class="pat-overlay pat-cowrie-red" style="opacity:0.12;"></div>
+      <div class="race-panel-inner">
+        <span class="race-badge">4-Day Stage Race · Kenya</span>
+        <h2 class="race-panel-title">Migration<br />Gravel<br />Race</h2>
+        <p class="race-panel-desc">Four epic stages through the Rift Valley and Mara region. One of Africa's most celebrated gravel events — open to elite and amateur riders alike.</p>
+        <a href="/races/migration-gravel-race/" class="race-link">Register Interest</a>
+      </div>
+    </div>
+    <div class="race-panel race-panel-2 reveal reveal-d1">
+      <div class="pat-overlay pat-cowrie-white"></div>
+      <div class="race-panel-inner">
+        <span class="race-badge">UCI Qualifying · Kenya</span>
+        <h2 class="race-panel-title">Safari<br />Gravel<br />Series</h2>
+        <p class="race-panel-desc">A UCI World Series qualifying race in Kenya's most iconic terrain. International stars vs. East African talent — on home roads.</p>
+        <a href="/races/safari-gravel-race/" class="race-link">Register Interest</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── AMANI HOUSE EXPANDABLE STRIP ───────────────────────────────── -->
+<div class="house-strip">
+  <div class="house-panel reveal" style="background:var(--navy);color:var(--white);">
+    <div class="house-panel-num">2400</div>
+    <div class="house-panel-label">AMANI<br />House</div>
+    <div class="house-panel-sub" style="color:rgba(255,255,255,0.5);">2,400m · Iten, Kenya</div>
+  </div>
+  <div class="house-panel reveal reveal-d1" style="background:var(--blue);color:var(--white);">
+    <div class="house-panel-num">{riderCount}</div>
+    <div class="house-panel-label">Elite<br />Riders</div>
+    <div class="house-panel-sub" style="color:rgba(255,255,255,0.5);">Men · Women · Dev Squad</div>
+  </div>
+  <div class="house-panel reveal reveal-d2" style="background:var(--red);color:var(--white);">
+    <div class="house-panel-num">{nationCount}</div>
+    <div class="house-panel-label">Nations<br />Represented</div>
+    <div class="house-panel-sub" style="color:rgba(255,255,255,0.5);">🇰🇪 🇺🇬 🇷🇼 🇪🇹 🇹🇿</div>
+  </div>
+  <div class="house-panel reveal reveal-d3" style="background:var(--lime);color:var(--navy);">
+    <div class="house-panel-num" style="color:rgba(30,26,58,0.1);">500</div>
+    <div class="house-panel-label">Youth<br />Reached</div>
+    <div class="house-panel-sub" style="color:rgba(30,26,58,0.5);">Spoke Academy 2026</div>
+  </div>
+</div>
+
+<!-- ── COMMUNITY / SUBSCRIBE ─────────────────────────────────────── -->
+<section class="community" id="community">
+  <div class="community-bg"></div>
+  <div class="container">
+    <div class="community-inner">
+      <div class="community-left reveal">
+        <span class="section-label lime">Join the Community</span>
+        <h2>Follow the<br /><span>Riders.</span><br />Follow the<br /><span>Mission.</span></h2>
+        <p>Race reports the day after the finish line. Rider stories you won't find anywhere else. Life at AMANI House. All of it, direct to your inbox.</p>
+        <div class="community-stats">
+          <div>
+            <div class="c-stat-num">2.4K</div>
+            <div class="c-stat-label">Subscribers</div>
+          </div>
+          <div>
+            <div class="c-stat-num">{riderCount}</div>
+            <div class="c-stat-label">Riders</div>
+          </div>
+          <div>
+            <div class="c-stat-num">{nationCount}</div>
+            <div class="c-stat-label">Nations</div>
+          </div>
+        </div>
+      </div>
+      <div class="reveal reveal-d2">
+        <form class="community-form" onsubmit="return handleSubscribe(event)">
+          <input id="community-email" class="community-input" type="email" placeholder="Your email address" required />
+          <input class="community-input" type="text" placeholder="First name (optional)" />
+          <button type="submit" class="community-submit">Join the AMANI Community →</button>
+          <p class="community-note">By subscribing you agree to receive team updates and race news. Free forever. Unsubscribe anytime.</p>
+        </form>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── FOOTER ─────────────────────────────────────────────────────── -->
+
+<script is:inline>
+/* ── Nav scroll shadow ── */
+  const nav = document.getElementById('site-nav');
+  window.addEventListener('scroll', () => {
+    nav.classList.toggle('scrolled', window.scrollY > 40);
+  });
+
+  /* ── Scroll reveal ── */
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); } });
+  }, { threshold: 0.12 });
+  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+  /* ── Feed filter ── */
+  function filterFeed(btn) {
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    const cat = btn.dataset.cat;
+    document.querySelectorAll('#feed-grid .article-card').forEach(card => {
+      card.classList.toggle('hidden', cat !== 'all' && card.dataset.cat !== cat);
+    });
+  }
+
+  /* ── Rider track drag scroll ── */
+  const track = document.getElementById('riders-track');
+  let isDown = false, startX, scrollL;
+  track.addEventListener('mousedown',  e => { isDown = true; startX = e.pageX - track.offsetLeft; scrollL = track.scrollLeft; });
+  track.addEventListener('mouseleave', () => isDown = false);
+  track.addEventListener('mouseup',    () => isDown = false);
+  track.addEventListener('mousemove',  e => {
+    if (!isDown) return; e.preventDefault();
+    track.scrollLeft = scrollL - (e.pageX - track.offsetLeft - startX);
+  });
+
+  /* ── Subscribe forms ── */
+  function handleHeroSubscribe(e) {
+    e.preventDefault();
+    const btn = e.target.querySelector('button');
+    btn.textContent = 'You\'re in! 🎉';
+    btn.style.background = '#4ade80';
+    setTimeout(() => { btn.textContent = 'Join the community'; btn.style.background = ''; e.target.reset(); }, 3000);
+    return false;
+  }
+  function handleSubscribe(e) {
+    e.preventDefault();
+    const btn = e.target.querySelector('button');
+    btn.textContent = 'Welcome to AMANI! 🎉';
+    btn.style.background = '#4ade80';
+    setTimeout(() => { btn.textContent = 'Join the AMANI Community →'; btn.style.background = ''; e.target.reset(); }, 3000);
+    return false;
+  }
+</script>
+</Base>

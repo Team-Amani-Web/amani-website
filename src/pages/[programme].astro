@@ -1,0 +1,41 @@
+---
+import Base from "../layouts/Base.astro";
+import StoryCard from "../components/StoryCard.astro";
+import programmes from "../data/programmes.json";
+import stories from "../data/stories.json";
+
+export function getStaticPaths() {
+  return programmes.map((p) => ({ params: { programme: p.slug }, props: { programme: p } }));
+}
+
+const { programme } = Astro.props;
+const related = stories.filter((s) => s.status === "published" && s.category === programme.title).slice(0, 3);
+---
+<Base title={programme.title} description={programme.summary} image={programme.image} current={programme.slug}>
+  <header class="page-head">
+    <div class="container">
+      <p class="page-head-eyebrow">{programme.eyebrow}</p>
+      <h1 class="page-head-title">{programme.title}</h1>
+      <p class="page-head-lede">{programme.summary}</p>
+    </div>
+  </header>
+
+  <div class="article-hero" style={`background-image:url('${programme.image}')`}></div>
+
+  <section class="page-section">
+    <div class="container">
+      <div class="article-wrap">
+        <Fragment set:html={programme.body} />
+      </div>
+    </div>
+  </section>
+
+  {related.length > 0 && (
+    <section class="page-section tint">
+      <div class="container">
+        <h2 class="squad-heading">Related stories</h2>
+        <div class="grid-cards">{related.map((s) => <StoryCard story={s} />)}</div>
+      </div>
+    </section>
+  )}
+</Base>

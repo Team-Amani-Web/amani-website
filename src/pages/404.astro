@@ -1,0 +1,19 @@
+---
+import Base from "../layouts/Base.astro";
+---
+<Base title="Page not found">
+  <header class="page-head">
+    <div class="container">
+      <p class="page-head-eyebrow">404</p>
+      <h1 class="page-head-title">That page doesn't exist</h1>
+      <p class="page-head-lede">It may have moved, or the link may be out of date.</p>
+    </div>
+  </header>
+  <section class="page-section">
+    <div class="container prose-narrow">
+      <p>Try the <a href="/" style="border-bottom:2px solid var(--red);">homepage</a>,
+      the <a href="/stories/" style="border-bottom:2px solid var(--red);">stories</a>,
+      or the <a href="/team/" style="border-bottom:2px solid var(--red);">squad</a>.</p>
+    </div>
+  </section>
+</Base>

@@ -1,0 +1,45 @@
+---
+import Base from "../../layouts/Base.astro";
+import StoryCard from "../../components/StoryCard.astro";
+import stories from "../../data/stories.json";
+
+export function getStaticPaths() {
+  return stories
+    .filter((s) => s.status === "published")
+    .map((s) => ({ params: { slug: s.slug }, props: { story: s } }));
+}
+
+const { story } = Astro.props;
+const date = new Date(story.date).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
+const more = stories
+  .filter((s) => s.status === "published" && s.slug !== story.slug)
+  .slice(0, 3);
+---
+<Base title={story.title} description={story.excerpt} image={story.image} current="stories">
+  <header class="page-head">
+    <div class="container">
+      <p class="page-head-eyebrow">{story.category}</p>
+      <h1 class="page-head-title">{story.title}</h1>
+      <p class="page-head-lede">{date} · {story.readtime} min read · {story.author}</p>
+    </div>
+  </header>
+
+  <div class="article-hero" style={`background-image:url('${story.image}')`}></div>
+
+  <article class="article">
+    <div class="container">
+      <div class="article-wrap">
+        <p style="font-size:1.15rem;font-weight:500;">{story.excerpt}</p>
+        <Fragment set:html={story.body} />
+        <p style="margin-top:36px;"><a href="/stories/" style="border-bottom:2px solid var(--red);">← All stories</a></p>
+      </div>
+    </div>
+  </article>
+
+  <section class="page-section tint">
+    <div class="container">
+      <h2 class="squad-heading">More stories</h2>
+      <div class="grid-cards">{more.map((s) => <StoryCard story={s} />)}</div>
+    </div>
+  </section>
+</Base>

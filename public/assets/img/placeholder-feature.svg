@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" width="1200" height="800" role="img" aria-label="FEATURE IMAGE placeholder">
+  <rect width="1200" height="800" fill="#1E1A3A"/>
+  <g fill="none" stroke="#C42020" stroke-width="3" opacity="0.55">
+    <rect x="12" y="12" width="1176" height="776"/>
+    <line x1="12" y1="12" x2="1188" y2="788"/>
+    <line x1="1188" y1="12" x2="12" y2="788"/>
+  </g>
+  <rect x="0" y="366" width="1200" height="68" fill="#1E1A3A"/>
+  <text x="600" y="394" font-family="Barlow Condensed, Arial Narrow, sans-serif" font-size="26" font-weight="700" letter-spacing="3" fill="#F5F1EB" text-anchor="middle">FEATURE IMAGE</text>
+  <text x="600" y="422" font-family="Barlow Condensed, Arial Narrow, sans-serif" font-size="17" letter-spacing="2" fill="#C42020" text-anchor="middle">1200 × 800 · IMAGE PENDING</text>
+</svg>

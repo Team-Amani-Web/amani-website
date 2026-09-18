@@ -1,0 +1,43 @@
+---
+import "../styles/global.css";
+import Nav from "../components/Nav.astro";
+import Footer from "../components/Footer.astro";
+import settings from "../data/settings.json";
+
+const {
+  title,
+  description = settings.description,
+  image = "/assets/img/placeholder-feature.svg",
+  current = "",
+} = Astro.props;
+
+const pageTitle = title ? `${title} — ${settings.siteName}` : `${settings.siteName} — ${settings.tagline}`;
+const canonical = new URL(Astro.url.pathname, settings.url).href;
+const ogImage = new URL(image, settings.url).href;
+---
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{pageTitle}</title>
+  <meta name="description" content={description} />
+  <link rel="canonical" href={canonical} />
+
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content={pageTitle} />
+  <meta property="og:description" content={description} />
+  <meta property="og:image" content={ogImage} />
+  <meta property="og:url" content={canonical} />
+  <meta name="twitter:card" content="summary_large_image" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:ital,wght@0,400;0,600;0,700;0,900;1,700&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet" />
+</head>
+<body>
+  <Nav current={current} />
+  <slot />
+  <Footer />
+</body>
+</html>

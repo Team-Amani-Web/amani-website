@@ -1,0 +1,20 @@
+{
+  "siteName": "Team AMANI",
+  "tagline": "East Africa's Elite Cycling Force",
+  "description": "East African distance runners reborn as elite cyclists. Race reports, rider stories, and community.",
+  "url": "https://team-amani.netlify.app",
+  "eyebrow": "UCI Continental Team · East Africa",
+  "altitude": 2400,
+  "youthReached": 500,
+  "subscribers": "2.4K",
+  "social": {
+    "instagram": "#",
+    "twitter": "#",
+    "youtube": "#"
+  },
+  "ticker": [
+    "Iten, Kenya · 2,400m", "Kenya", "Uganda", "Rwanda", "Ethiopia",
+    "Migration Gravel Race · May 2026", "Safari Gravel Race · UCI",
+    "Black Mamba Development Squad"
+  ]
+}

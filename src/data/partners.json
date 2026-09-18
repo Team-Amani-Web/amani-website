@@ -1,0 +1,8 @@
+[
+  { "name":"Rapha","tier":"Principal","url":"#","blurb":"Team kit and apparel." },
+  { "name":"POC","tier":"Principal","url":"#","blurb":"Helmets and eyewear." },
+  { "name":"Factor","tier":"Principal","url":"#","blurb":"Race bikes." },
+  { "name":"SRAM","tier":"Technical","url":"#","blurb":"Drivetrain and components." },
+  { "name":"Wahoo","tier":"Technical","url":"#","blurb":"Training and ride data." },
+  { "name":"Fizik","tier":"Technical","url":"#","blurb":"Saddles and contact points." }
+]

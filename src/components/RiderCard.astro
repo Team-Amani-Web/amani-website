@@ -1,0 +1,13 @@
+---
+const { rider, accent = "var(--lime)", kitBg = "var(--blue)" } = Astro.props;
+---
+<a class="rider-card" href={`/riders/${rider.slug}/`} style={`border-top:3px solid ${accent};`}>
+  <div class="rider-card-kit" style={`background-image:url('${rider.photo}');background-color:${kitBg};`}>
+    <div class="rider-card-kit-inner"></div>
+  </div>
+  <div class="rider-card-body">
+    <div class="rider-name">{rider.name}</div>
+    <div class="rider-nation">{rider.flag} {rider.nation}</div>
+    <span class="rider-role" style={`background:${accent};color:var(--navy);`}>{rider.role}</span>
+  </div>
+</a>

@@ -1,0 +1,26 @@
+---
+import Base from "../../layouts/Base.astro";
+import PageHeader from "../../components/PageHeader.astro";
+---
+<Base title="Contact" current="contact" description="Get in touch with Team AMANI — press, partnerships and general enquiries.">
+  <PageHeader eyebrow="Get in touch" title="Contact" lede="Press, partnerships, or anything else." />
+  <section class="page-section">
+    <div class="container">
+      <div class="prose-narrow">
+        <p>For press enquiries, partnership conversations, or questions about AMANI House and the Spoke Academy, send us a message.</p>
+        <form class="form-row" name="contact" method="POST" data-netlify="true" style="flex-direction:column;align-items:stretch;">
+          <input type="hidden" name="form-name" value="contact" />
+          <input type="text" name="name" placeholder="Your name" required />
+          <input type="email" name="email" placeholder="Your email" required />
+          <input type="text" name="subject" placeholder="Subject" />
+          <textarea name="message" placeholder="Your message" rows="6" required
+            style="padding:14px 16px;border:1.5px solid var(--border);font-family:'Barlow',sans-serif;font-size:0.95rem;background:var(--white);"></textarea>
+          <button type="submit" style="align-self:flex-start;">Send message</button>
+        </form>
+        <p style="margin-top:28px;color:var(--muted);font-size:0.9rem;">
+          Form submissions arrive in Netlify under Forms. Replace with a real inbox before launch.
+        </p>
+      </div>
+    </div>
+  </section>
+</Base>

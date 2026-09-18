@@ -1,0 +1,10 @@
+{
+  "live": false,
+  "note": "Set live to true and swap getProducts() for the Shopify Storefront API when the store opens.",
+  "products": [
+    { "handle":"team-jersey-2026","title":"2026 Team Jersey","price":"—","currencyCode":"EUR","featuredImage":"","availableForSale":false },
+    { "handle":"team-cap","title":"Team Cap","price":"—","currencyCode":"EUR","featuredImage":"","availableForSale":false },
+    { "handle":"amani-house-tee","title":"AMANI House Tee","price":"—","currencyCode":"EUR","featuredImage":"","availableForSale":false },
+    { "handle":"bidon-pair","title":"Bidon (pair)","price":"—","currencyCode":"EUR","featuredImage":"","availableForSale":false }
+  ]
+}

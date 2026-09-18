@@ -1,0 +1,47 @@
+---
+import Base from "../../layouts/Base.astro";
+import PageHeader from "../../components/PageHeader.astro";
+import races from "../../data/races.json";
+
+const organised = races.filter((r) => r.kind === "organised");
+const attending = races.filter((r) => r.kind === "attending");
+---
+<Base title="Races" current="races" description="The races AMANI organises in East Africa, and the races the team travels to.">
+  <PageHeader
+    eyebrow="Race Calendar"
+    title="Races"
+    lede="The events AMANI puts on at home, and the races the team travels to."
+  />
+
+  <section class="page-section">
+    <div class="container">
+      <h2 class="squad-heading">Our events</h2>
+      {organised.map((r) => (
+        <div class="race-row">
+          <div class="race-row-dates">{r.dates}</div>
+          <div>
+            <div class="race-row-name">{r.name}</div>
+            <div class="race-row-meta">{r.location} · {r.category}</div>
+          </div>
+          <a class="race-row-link" href={`/races/${r.slug}/`}>Details →</a>
+        </div>
+      ))}
+    </div>
+  </section>
+
+  <section class="page-section tint">
+    <div class="container">
+      <h2 class="squad-heading">Where we're racing</h2>
+      {attending.map((r) => (
+        <div class="race-row">
+          <div class="race-row-dates">{r.dates}</div>
+          <div>
+            <div class="race-row-name">{r.name}</div>
+            <div class="race-row-meta">{r.location} · {r.category}</div>
+          </div>
+          <a class="race-row-link" href={`/races/${r.slug}/`}>Details →</a>
+        </div>
+      ))}
+    </div>
+  </section>
+</Base>

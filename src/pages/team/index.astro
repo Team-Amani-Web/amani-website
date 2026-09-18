@@ -1,0 +1,32 @@
+---
+import Base from "../../layouts/Base.astro";
+import PageHeader from "../../components/PageHeader.astro";
+import RiderCard from "../../components/RiderCard.astro";
+import riders from "../../data/riders.json";
+
+const squads = [...new Set(riders.map((r) => r.squad))];
+const accents = ["var(--lime)", "var(--blue)", "var(--red)", "var(--navy)"];
+const kits = ["var(--blue)", "var(--navy)", "var(--red)", "var(--navy)"];
+const nations = new Set(riders.map((r) => r.nation)).size;
+---
+<Base title="The Squad" current="team" description="Every rider across the Men's, Women's and Black Mamba Development squads.">
+  <PageHeader
+    eyebrow="The Squad"
+    title="Meet the Riders"
+    lede={`${riders.length} riders from ${nations} nations, across the Men's, Women's and Black Mamba Development squads.`}
+  />
+  <section class="page-section">
+    <div class="container">
+      {squads.map((squad) => (
+        <>
+          <h2 class="squad-heading">{squad}</h2>
+          <div class="grid-riders">
+            {riders.filter((r) => r.squad === squad).map((r, i) => (
+              <RiderCard rider={r} accent={accents[i % accents.length]} kitBg={kits[i % kits.length]} />
+            ))}
+          </div>
+        </>
+      ))}
+    </div>
+  </section>
+</Base>

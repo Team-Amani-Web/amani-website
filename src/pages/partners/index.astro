@@ -1,0 +1,35 @@
+---
+import Base from "../../layouts/Base.astro";
+import PageHeader from "../../components/PageHeader.astro";
+import partners from "../../data/partners.json";
+
+const tiers = [...new Set(partners.map((p) => p.tier))];
+---
+<Base title="Partners" current="partners" description="The coalition backing AMANI — the brands and organisations making the project possible.">
+  <PageHeader
+    eyebrow="The Coalition"
+    title="Partners"
+    lede="AMANI is assembling a coalition, from both within and outside cycling, committed to equity of access and opportunity in sport."
+  />
+  <section class="page-section">
+    <div class="container">
+      {tiers.map((tier) => (
+        <>
+          <h2 class="squad-heading">{tier}</h2>
+          <div class="partner-grid" style="margin-bottom:48px;">
+            {partners.filter((p) => p.tier === tier).map((p) => (
+              <a class="partner-card" href={p.url}>
+                <p class="partner-tier">{p.tier}</p>
+                <div class="partner-name">{p.name}</div>
+                <p class="partner-blurb">{p.blurb}</p>
+              </a>
+            ))}
+          </div>
+        </>
+      ))}
+      <div class="prose-narrow">
+        <p>Interested in joining? <a href="/contact/" style="border-bottom:2px solid var(--red);">Get in touch</a>.</p>
+      </div>
+    </div>
+  </section>
+</Base>

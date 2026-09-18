@@ -1,0 +1,28 @@
+---
+const { story } = Astro.props;
+const tagClass = {
+  "Race Reports": "race",
+  "Team News": "news",
+  "Rider Profiles": "profile",
+  "AMANI House": "house",
+  "Spoke Academy": "academy",
+  "Gravel": "gravel",
+}[story.category] ?? "news";
+const label = story.category === "Race Reports" ? "Race Report"
+  : story.category === "Rider Profiles" ? "Rider Profile"
+  : story.category;
+const d = new Date(story.date).toLocaleDateString("en-GB", { month: "short", year: "numeric" });
+---
+<article class="article-card" data-cat={story.category}>
+  <a href={`/stories/${story.slug}/`} class="card-link">
+    <div class="card-visual">
+      <div class="card-visual-inner" style={`background-image:url('${story.image}');`}></div>
+      <span class={`card-tag ${tagClass}`}>{label}</span>
+    </div>
+    <div class="card-body">
+      <h3 class="card-title">{story.title}</h3>
+      <p class="card-excerpt">{story.excerpt}</p>
+      <div class="card-meta"><span>{d} · {story.readtime} min read</span><span class="read-more">Read →</span></div>
+    </div>
+  </a>
+</article>
